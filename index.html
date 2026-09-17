@@ -1,0 +1,9147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEARCH AI Pro2.0</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #050816;
+      --bg-panel: rgba(8, 15, 38, 0.82);
+      --neon-cyan: #00eaff;
+      --neon-purple: #9b5cff;
+      --neon-pink: #ff3cac;
+      --neon-blue: #4d7cff;
+      --text-main: #eef7ff;
+      --text-sub: #9eb2cc;
+      --border: rgba(114, 170, 255, 0.22);
+
+      --shadow-cyan:
+        0 0 10px rgba(0, 234, 255, 0.35),
+        0 0 30px rgba(0, 234, 255, 0.14);
+
+      --shadow-purple:
+        0 0 10px rgba(155, 92, 255, 0.35),
+        0 0 30px rgba(155, 92, 255, 0.14);
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at 15% 20%,
+          rgba(0, 234, 255, 0.10),
+          transparent 22%
+        ),
+        radial-gradient(
+          circle at 85% 15%,
+          rgba(155, 92, 255, 0.13),
+          transparent 24%
+        ),
+        radial-gradient(
+          circle at 80% 80%,
+          rgba(255, 60, 172, 0.09),
+          transparent 22%
+        ),
+        linear-gradient(
+          135deg,
+          #03050d 0%,
+          #071025 45%,
+          #050816 100%
+        );
+
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.85) 0.7px, transparent 0.9px),
+        radial-gradient(circle, rgba(0,234,255,0.75) 0.8px, transparent 1px),
+        radial-gradient(circle, rgba(155,92,255,0.75) 0.7px, transparent 1px);
+
+      background-size:
+        150px 150px,
+        230px 230px,
+        310px 310px;
+
+      background-position:
+        15px 10px,
+        90px 45px,
+        25px 120px;
+
+      opacity: 0.42;
+    }
+
+    /* =========================
+       Sidebar
+       ========================= */
+
+    #sidebar {
+      width: 290px;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(4, 10, 28, 0.96),
+          rgba(8, 11, 32, 0.93)
+        );
+
+      border-right:
+        1px solid rgba(0, 234, 255, 0.20);
+
+      display: flex;
+      flex-direction: column;
+
+      transition:
+        margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+      z-index: 100;
+
+      box-shadow:
+        8px 0 30px rgba(0, 0, 0, 0.35),
+        0 0 25px rgba(0, 234, 255, 0.05);
+    }
+
+    #sidebar.collapsed {
+      margin-left: -290px;
+    }
+
+    .sidebar-header {
+      padding: 12px 14px;
+
+      min-height: 58px;
+
+      border-bottom:
+        1px solid rgba(0, 234, 255, 0.14);
+
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+
+      gap: 10px;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(0,234,255,0.04),
+          rgba(155,92,255,0.06)
+        );
+    }
+
+    .sidebar-header h3 {
+      font-size: 0.96rem;
+      color: #dffaff;
+      font-weight: 700;
+
+      text-shadow:
+        0 0 8px rgba(0, 234, 255, 0.35);
+
+      flex: 1;
+    }
+
+    .sidebar-header .toggle-sidebar-btn {
+      flex-shrink: 0;
+    }
+
+    .new-chat-btn {
+      margin: 14px 16px;
+
+      padding: 11px 14px;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(0,234,255,0.20),
+          rgba(155,92,255,0.22)
+        );
+
+      color: #ffffff;
+
+      border:
+        1px solid rgba(0,234,255,0.55);
+
+      border-radius: 10px;
+
+      font-weight: 700;
+      font-size: 0.9rem;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 6px;
+
+      box-shadow: var(--shadow-cyan);
+
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+    }
+
+    .new-chat-btn:hover {
+      transform: translateY(-1px);
+
+      box-shadow:
+        0 0 12px rgba(0,234,255,0.55),
+        0 0 35px rgba(155,92,255,0.22);
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+
+      padding: 0 12px 14px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-list::-webkit-scrollbar,
+    main::-webkit-scrollbar,
+    .saved-list::-webkit-scrollbar,
+    .tab-content::-webkit-scrollbar,
+    .calculator-area::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb,
+    main::-webkit-scrollbar-thumb,
+    .saved-list::-webkit-scrollbar-thumb,
+    .tab-content::-webkit-scrollbar-thumb,
+    .calculator-area::-webkit-scrollbar-thumb {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(0,234,255,0.30),
+          rgba(155,92,255,0.30)
+        );
+
+      border-radius: 10px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 10px 11px;
+
+      border-radius: 9px;
+
+      background: rgba(255,255,255,0.015);
+
+      border:
+        1px solid transparent;
+
+      cursor: pointer;
+
+      color: #b9c9df;
+
+      transition:
+        background 0.18s,
+        border-color 0.18s,
+        transform 0.18s;
+    }
+
+    .history-item:hover {
+      background:
+        rgba(0,234,255,0.07);
+
+      border-color:
+        rgba(0,234,255,0.16);
+
+      transform: translateX(2px);
+    }
+
+    .history-item.active {
+      background:
+        linear-gradient(
+          90deg,
+          rgba(0,234,255,0.11),
+          rgba(155,92,255,0.10)
+        );
+
+      border-color:
+        rgba(0,234,255,0.32);
+
+      color: #ffffff;
+
+      box-shadow:
+        inset 0 0 18px rgba(0,234,255,0.04);
+    }
+
+    .history-item.pinned {
+      border-color:
+        rgba(255,60,172,0.28);
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255,60,172,0.08),
+          rgba(155,92,255,0.07)
+        );
+    }
+
+    .history-item-title {
+      font-size: 0.88rem;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      flex: 1;
+      min-width: 0;
+
+      padding-right: 8px;
+    }
+
+    .history-action-btns {
+      display: flex;
+      gap: 3px;
+
+      opacity: 0.72;
+      flex-shrink: 0;
+    }
+
+    .history-item:hover .history-action-btns {
+      opacity: 1;
+    }
+
+    .history-btn {
+      border: none;
+      background: transparent;
+
+      color: #88a0bd;
+
+      font-size: 0.82rem;
+
+      cursor: pointer;
+
+      padding: 4px 5px;
+
+      border-radius: 5px;
+
+      transition:
+        background 0.18s,
+        color 0.18s;
+    }
+
+    .history-btn:hover {
+      background:
+        rgba(0,234,255,0.09);
+
+      color: #ffffff;
+    }
+
+    .history-btn.pin-btn.active {
+      color: #ff3cac;
+
+      text-shadow:
+        0 0 8px rgba(255,60,172,0.7);
+    }
+
+    .history-btn.del-btn:hover {
+      background:
+        rgba(255, 70, 110, 0.12);
+
+      color: #ff6b8a;
+    }
+
+    /* =========================
+       Main
+       ========================= */
+
+    .main-wrapper {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+
+      height: 100vh;
+      overflow: hidden;
+
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background:
+        linear-gradient(
+          90deg,
+          rgba(3,8,22,0.88),
+          rgba(8,14,35,0.88)
+        );
+
+      backdrop-filter: blur(18px);
+
+      color: #ffffff;
+
+      padding: 12px 20px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      border-bottom:
+        1px solid rgba(0,234,255,0.18);
+
+      box-shadow:
+        0 5px 30px rgba(0,0,0,0.22);
+
+      z-index: 10;
+
+      position: relative;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      min-width: 0;
+    }
+
+    .toggle-sidebar-btn {
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #dffaff;
+
+      border:
+        1px solid rgba(0,234,255,0.35);
+
+      padding: 7px 12px;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      font-size: 0.86rem;
+      font-weight: 700;
+
+      transition: all 0.2s;
+
+      box-shadow:
+        0 0 8px rgba(0,234,255,0.08);
+
+      white-space: nowrap;
+    }
+
+    .toggle-sidebar-btn:hover {
+      background:
+        rgba(0,234,255,0.09);
+
+      border-color:
+        rgba(0,234,255,0.75);
+
+      box-shadow:
+        0 0 12px rgba(0,234,255,0.26);
+
+      color: #ffffff;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
+
+      color: #ffffff;
+
+      letter-spacing: 0.4px;
+
+      text-shadow:
+        0 0 8px rgba(0,234,255,0.42),
+        0 0 18px rgba(155,92,255,0.22);
+
+      white-space: nowrap;
+    }
+
+    .header-btns {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .toggle-label {
+      font-size: 0.83rem;
+
+      color: #d6e7ff;
+
+      display: flex;
+      align-items: center;
+
+      gap: 5px;
+
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .toggle-label input {
+      accent-color: var(--neon-cyan);
+    }
+
+    .btn {
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #d6e7ff;
+
+      border:
+        1px solid rgba(140,180,255,0.20);
+
+      padding: 7px 13px;
+
+      border-radius: 8px;
+
+      font-weight: 650;
+
+      cursor: pointer;
+
+      transition: all 0.2s;
+
+      font-size: 0.84rem;
+    }
+
+    .btn:hover {
+      background:
+        rgba(0,234,255,0.08);
+
+      border-color:
+        rgba(0,234,255,0.45);
+
+      color: #ffffff;
+
+      box-shadow:
+        0 0 10px rgba(0,234,255,0.15);
+    }
+
+    /* =========================
+       Header Language
+       ========================= */
+
+    .language-menu-wrap {
+      position: relative;
+    }
+
+    .language-btn {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.14),
+          rgba(155,92,255,0.14)
+        );
+
+      border:
+        1px solid rgba(0,234,255,0.36);
+
+      color: #dffaff;
+
+      padding: 7px 13px;
+
+      border-radius: 8px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition: all 0.2s;
+
+      font-size: 0.84rem;
+
+      white-space: nowrap;
+    }
+
+    .language-btn:hover {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.22),
+          rgba(155,92,255,0.22)
+        );
+
+      border-color:
+        rgba(0,234,255,0.70);
+
+      box-shadow:
+        0 0 12px rgba(0,234,255,0.16);
+    }
+
+    .language-panel {
+      display: none;
+
+      position: absolute;
+
+      top: calc(100% + 10px);
+
+      right: 0;
+
+      width: 255px;
+
+      padding: 13px;
+
+      border:
+        1px solid rgba(0,234,255,0.28);
+
+      border-radius: 12px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(7,14,34,0.98),
+          rgba(12,12,41,0.98)
+        );
+
+      box-shadow:
+        0 0 18px rgba(0,234,255,0.14),
+        0 0 35px rgba(155,92,255,0.10),
+        0 18px 45px rgba(0,0,0,0.38);
+
+      backdrop-filter: blur(18px);
+
+      z-index: 5000;
+    }
+
+    .language-panel.show {
+      display: block;
+    }
+
+    .language-panel-title {
+      font-size: 0.82rem;
+
+      color: #90efff;
+
+      font-weight: 700;
+
+      margin-bottom: 10px;
+    }
+
+    .language-options {
+      display: flex;
+
+      gap: 8px;
+
+      flex-wrap: wrap;
+    }
+
+    .language-option {
+      padding: 7px 11px;
+
+      border-radius: 7px;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      border:
+        1px solid rgba(140,180,255,0.22);
+
+      color: #cfe7ff;
+
+      cursor: pointer;
+
+      font-weight: 600;
+
+      transition: all 0.2s;
+    }
+
+    .language-option:hover,
+    .language-option.active {
+      border-color:
+        rgba(0,234,255,0.65);
+
+      background:
+        rgba(0,234,255,0.10);
+
+      color: #ffffff;
+
+      box-shadow:
+        0 0 10px rgba(0,234,255,0.14);
+    }
+
+    /* =========================
+       Chat
+       ========================= */
+
+    main {
+      flex: 1;
+
+      padding: 22px;
+
+      overflow-y: auto;
+
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+
+      max-width: 900px;
+      width: 100%;
+
+      margin: 0 auto;
+
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      padding: 15px 18px;
+
+      border-radius: 14px;
+
+      max-width: 86%;
+
+      line-height: 1.65;
+
+      word-break: break-word;
+
+      font-size: 0.95rem;
+    }
+
+    .user-msg {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.18),
+          rgba(77,124,255,0.22)
+        );
+
+      color: #ffffff;
+
+      align-self: flex-end;
+
+      border:
+        1px solid rgba(0,234,255,0.38);
+
+      border-bottom-right-radius: 4px;
+
+      box-shadow:
+        var(--shadow-cyan);
+
+      backdrop-filter: blur(12px);
+    }
+
+    .ai-msg {
+      background:
+        linear-gradient(
+          145deg,
+          rgba(11,18,43,0.88),
+          rgba(7,14,31,0.88)
+        );
+
+      color: #e7f0ff;
+
+      align-self: flex-start;
+
+      border-bottom-left-radius: 4px;
+
+      border:
+        1px solid rgba(155,92,255,0.22);
+
+      box-shadow:
+        0 0 16px rgba(155,92,255,0.07),
+        0 10px 35px rgba(0,0,0,0.25);
+
+      width: 100%;
+
+      backdrop-filter: blur(14px);
+    }
+
+    .speech-btn {
+      background:
+        rgba(255,255,255,0.04);
+
+      border:
+        1px solid rgba(0,234,255,0.24);
+
+      padding: 5px 10px;
+
+      border-radius: 7px;
+
+      font-size: 0.79rem;
+
+      cursor: pointer;
+
+      color: #cbeeff;
+
+      transition: all 0.2s;
+    }
+
+    .speech-btn:hover {
+      background:
+        rgba(0,234,255,0.08);
+
+      border-color:
+        rgba(0,234,255,0.52);
+
+      box-shadow:
+        0 0 10px rgba(0,234,255,0.15);
+
+      color: #ffffff;
+    }
+
+    .speech-btn.stop-btn {
+      background:
+        rgba(255,60,100,0.06);
+
+      border-color:
+        rgba(255,90,125,0.28);
+
+      color: #ff9ab0;
+    }
+
+    /* =========================
+       Footer
+       ========================= */
+
+    footer {
+      padding: 15px 20px;
+
+      background:
+        rgba(4,9,25,0.82);
+
+      backdrop-filter: blur(18px);
+
+      border-top:
+        1px solid rgba(0,234,255,0.15);
+
+      box-shadow:
+        0 -5px 25px rgba(0,0,0,0.22);
+    }
+
+    .input-box {
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      display: flex;
+
+      gap: 9px;
+
+      align-items: stretch;
+    }
+
+    textarea {
+      flex: 1;
+
+      height: 54px;
+
+      padding: 13px;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #f3f8ff;
+
+      border:
+        1px solid rgba(0,234,255,0.22);
+
+      border-radius: 10px;
+
+      resize: none;
+
+      font-size: 0.95rem;
+
+      outline: none;
+
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        background 0.2s;
+    }
+
+    textarea::placeholder {
+      color: #6f87a4;
+    }
+
+    textarea:focus {
+      border-color:
+        rgba(0,234,255,0.65);
+
+      background:
+        rgba(0,234,255,0.035);
+
+      box-shadow:
+        0 0 0 3px rgba(0,234,255,0.08),
+        0 0 16px rgba(0,234,255,0.10);
+    }
+
+    .voice-btn {
+      min-width: 54px;
+
+      border-radius: 10px;
+
+      background:
+        rgba(155,92,255,0.10);
+
+      color: #d9c8ff;
+
+      border:
+        1px solid rgba(155,92,255,0.35);
+
+      cursor: pointer;
+
+      font-size: 1.15rem;
+
+      transition: all 0.2s;
+
+      flex-shrink: 0;
+    }
+
+    .voice-btn:hover {
+      background:
+        rgba(155,92,255,0.18);
+
+      border-color:
+        rgba(155,92,255,0.7);
+
+      box-shadow:
+        0 0 12px rgba(155,92,255,0.22);
+    }
+
+    .voice-btn.listening {
+      background:
+        rgba(255,60,172,0.16);
+
+      border-color:
+        rgba(255,60,172,0.72);
+
+      color: #ff8ac8;
+
+      box-shadow:
+        0 0 14px rgba(255,60,172,0.35),
+        0 0 35px rgba(255,60,172,0.12);
+
+      animation:
+        voicePulse 1s infinite;
+    }
+
+    @keyframes voicePulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.04);
+      }
+    }
+
+    .send-btn {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.75),
+          rgba(77,124,255,0.82)
+        );
+
+      color: #ffffff;
+
+      border:
+        1px solid rgba(0,234,255,0.82);
+
+      padding: 0 23px;
+
+      border-radius: 10px;
+
+      font-weight: 750;
+
+      cursor: pointer;
+
+      transition: all 0.2s;
+
+      box-shadow:
+        0 0 13px rgba(0,234,255,0.24);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-1px);
+
+      box-shadow:
+        0 0 18px rgba(0,234,255,0.40),
+        0 0 30px rgba(155,92,255,0.15);
+    }
+
+    /* =========================
+       Modal
+       ========================= */
+
+    .modal {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      background:
+        rgba(1,4,15,0.76);
+
+      backdrop-filter: blur(10px);
+
+      justify-content: center;
+      align-items: center;
+
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background:
+        linear-gradient(
+          145deg,
+          rgba(7,14,34,0.97),
+          rgba(12,12,41,0.97)
+        );
+
+      width: 90%;
+      max-width: 920px;
+      height: 85vh;
+
+      border:
+        1px solid rgba(0,234,255,0.22);
+
+      border-radius: 15px;
+
+      padding: 20px;
+
+      display: flex;
+      flex-direction: column;
+
+      position: relative;
+
+      box-shadow:
+        0 0 30px rgba(0,234,255,0.10),
+        0 0 50px rgba(155,92,255,0.08),
+        0 20px 70px rgba(0,0,0,0.42);
+
+      backdrop-filter: blur(18px);
+    }
+
+    .close-btn {
+      position: absolute;
+
+      top: 10px;
+      right: 14px;
+
+      font-size: 1.6rem;
+
+      border: none;
+
+      background: transparent;
+
+      cursor: pointer;
+
+      color: #6f86a5;
+
+      z-index: 2;
+    }
+
+    .close-btn:hover {
+      color: #ffffff;
+    }
+
+    /* =========================
+       Feature Menu
+       ========================= */
+
+    .tab-bar {
+      display: flex;
+
+      gap: 12px;
+
+      border-bottom:
+        1px solid rgba(0,234,255,0.12);
+
+      margin-bottom: 16px;
+
+      overflow-x: auto;
+      padding-right: 40px;
+    }
+
+    .tab-btn {
+      padding: 10px 16px;
+
+      border: none;
+
+      background: transparent;
+
+      font-size: 0.95rem;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      color: #6e85a3;
+
+      border-bottom:
+        2px solid transparent;
+
+      margin-bottom: -1px;
+
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+
+      border-bottom-color:
+        var(--neon-cyan);
+
+      text-shadow:
+        0 0 8px rgba(0,234,255,0.55);
+    }
+
+    .tab-content {
+      display: none;
+
+      flex: 1;
+
+      flex-direction: column;
+
+      gap: 12px;
+
+      overflow-y: auto;
+
+      min-height: 0;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* =========================
+       Memo
+       ========================= */
+
+    .memo-split-container {
+      display: flex;
+
+      gap: 15px;
+
+      flex: 1;
+
+      min-height: 0;
+    }
+
+    .memo-left-panel,
+    .memo-right-panel {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 10px;
+
+      border:
+        1px solid rgba(0,234,255,0.14);
+
+      padding: 12px;
+
+      border-radius: 10px;
+
+      background:
+        rgba(255,255,255,0.025);
+    }
+
+    .memo-panel-title {
+      font-weight: bold;
+
+      font-size: 0.95rem;
+
+      color: #8fefff;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      text-shadow:
+        0 0 8px rgba(0,234,255,0.25);
+    }
+
+    .memo-title-input {
+      padding: 8px 10px;
+
+      border-radius: 7px;
+
+      font-size: 0.9rem;
+      font-weight: bold;
+
+      width: 100%;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #eef7ff;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+
+      outline: none;
+    }
+
+    .memo-editor {
+      width: 100%;
+
+      flex: 1;
+
+      min-height: 200px;
+
+      padding: 10px;
+
+      border-radius: 8px;
+
+      font-size: 0.95rem;
+
+      line-height: 1.5;
+
+      resize: none;
+
+      outline: none;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #eef7ff;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+    }
+
+    .memo-editor::placeholder,
+    .doc-editor::placeholder,
+    .trans-textarea::placeholder,
+    .memo-title-input::placeholder,
+    .doc-title-input::placeholder,
+    .lang-search::placeholder {
+      color: #6f87a4;
+    }
+
+    .editor-voice-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .editor-voice-row .editor-voice-target {
+      flex: 1;
+    }
+
+    .editor-voice-btn {
+      min-width: 52px;
+      height: 42px;
+
+      align-self: center;
+
+      border-radius: 8px;
+
+      background:
+        rgba(155,92,255,0.09);
+
+      border:
+        1px solid rgba(155,92,255,0.35);
+
+      color: #dccfff;
+
+      cursor: pointer;
+
+      font-size: 1.05rem;
+
+      transition: all 0.2s;
+    }
+
+    .editor-voice-btn:hover {
+      background:
+        rgba(155,92,255,0.16);
+
+      border-color:
+        rgba(155,92,255,0.68);
+
+      box-shadow:
+        0 0 12px rgba(155,92,255,0.20);
+    }
+
+    .editor-voice-btn.listening {
+      background:
+        rgba(255,60,172,0.15);
+
+      border-color:
+        rgba(255,60,172,0.72);
+
+      color: #ff8ac8;
+
+      box-shadow:
+        0 0 15px rgba(255,60,172,0.30);
+
+      animation:
+        voicePulse 1s infinite;
+    }
+
+    .memo-action-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .saved-list {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 8px;
+
+      overflow-y: auto;
+
+      flex: 1;
+    }
+
+    .saved-item {
+      display: flex;
+
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 10px;
+
+      border:
+        1px solid rgba(0,234,255,0.12);
+
+      border-radius: 8px;
+
+      background:
+        rgba(255,255,255,0.03);
+    }
+
+    .saved-item-title {
+      font-weight: bold;
+
+      cursor: pointer;
+
+      flex: 1;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+
+      white-space: nowrap;
+
+      color: #dceeff;
+    }
+
+    /* =========================
+       Document
+       ========================= */
+
+    .doc-header {
+      display: flex;
+
+      justify-content: space-between;
+      align-items: center;
+
+      background:
+        rgba(255,255,255,0.025);
+
+      padding: 8px 12px;
+
+      border-radius: 8px;
+
+      gap: 8px;
+    }
+
+    .doc-title-input {
+      flex: 1;
+
+      padding: 6px 10px;
+
+      border-radius: 7px;
+
+      font-size: 0.95rem;
+      font-weight: bold;
+
+      outline: none;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #eef7ff;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+    }
+
+    .doc-actions {
+      display: flex;
+
+      gap: 6px;
+
+      flex-wrap: wrap;
+    }
+
+    .doc-editor {
+      width: 100%;
+
+      flex: 1;
+
+      min-height: 200px;
+
+      padding: 12px;
+
+      border-radius: 8px;
+
+      font-size: 0.95rem;
+
+      line-height: 1.6;
+
+      resize: vertical;
+
+      outline: none;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #eef7ff;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+    }
+
+    /* =========================
+       Translation
+       ========================= */
+
+    .lang-box {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lang-search {
+      flex: 1;
+
+      padding: 9px 10px;
+
+      border-radius: 8px;
+
+      outline: none;
+
+      background:
+        #f8fbff;
+
+      color: #18243a;
+
+      border:
+        1px solid rgba(0,234,255,0.32);
+
+      font-weight: 500;
+    }
+
+    .lang-select {
+      flex: 1;
+
+      padding: 9px 10px;
+
+      border-radius: 8px;
+
+      outline: none;
+
+      background:
+        #ffffff;
+
+      color: #172033;
+
+      border:
+        1px solid rgba(0,234,255,0.38);
+
+      font-weight: 650;
+
+      box-shadow:
+        0 0 10px rgba(0,234,255,0.06);
+
+      color-scheme: light;
+    }
+
+    .lang-select:hover,
+    .lang-select:focus {
+      border-color:
+        rgba(0,234,255,0.75);
+
+      box-shadow:
+        0 0 12px rgba(0,234,255,0.14);
+    }
+
+    .lang-select option {
+      background: #ffffff;
+      color: #172033;
+    }
+
+    .trans-textarea {
+      width: 100%;
+
+      height: 120px;
+
+      padding: 10px;
+
+      border-radius: 8px;
+
+      resize: vertical;
+
+      outline: none;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #eef7ff;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+    }
+
+    .trans-result {
+      width: 100%;
+
+      min-height: 90px;
+
+      padding: 10px;
+
+      background:
+        rgba(255,255,255,0.025);
+
+      border:
+        1px solid rgba(0,234,255,0.12);
+
+      border-radius: 8px;
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+
+      color: #dcecff;
+    }
+
+    /* =========================
+       Calculator
+       ========================= */
+
+    .calculator-area {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+
+      overflow-y: auto;
+      min-height: 0;
+
+      padding: 2px 4px 8px;
+    }
+
+    .calculator-display {
+      border:
+        1px solid rgba(0,234,255,0.30);
+
+      border-radius: 12px;
+
+      padding: 14px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(0,234,255,0.05),
+          rgba(155,92,255,0.07)
+        );
+
+      box-shadow:
+        0 0 15px rgba(0,234,255,0.08);
+
+      min-height: 118px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      gap: 8px;
+    }
+
+    .calculator-expression {
+      min-height: 28px;
+
+      color: #9eb2cc;
+
+      font-size: 0.92rem;
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+    }
+
+    .calculator-main-display {
+      min-height: 52px;
+
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      color: #ffffff;
+
+      font-size: 2rem;
+
+      font-weight: 800;
+
+      text-align: right;
+
+      word-break: break-word;
+
+      text-shadow:
+        0 0 12px rgba(0,234,255,0.35);
+
+      overflow-x: auto;
+    }
+
+    .calculator-buttons {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 8px;
+    }
+
+    .calc-btn {
+      min-height: 54px;
+
+      border-radius: 10px;
+
+      border:
+        1px solid rgba(140,180,255,0.20);
+
+      background:
+        rgba(255,255,255,0.045);
+
+      color: #e7f4ff;
+
+      cursor: pointer;
+
+      font-size: 1.05rem;
+
+      font-weight: 750;
+
+      transition: all 0.18s;
+
+      box-shadow:
+        0 0 8px rgba(0,234,255,0.03);
+    }
+
+    .calc-btn:hover {
+      transform: translateY(-1px);
+
+      background:
+        rgba(0,234,255,0.10);
+
+      border-color:
+        rgba(0,234,255,0.50);
+
+      box-shadow:
+        0 0 12px rgba(0,234,255,0.15);
+    }
+
+    .calc-btn.operator {
+      background:
+        rgba(155,92,255,0.12);
+
+      border-color:
+        rgba(155,92,255,0.30);
+
+      color: #dfcaff;
+    }
+
+    .calc-btn.equal {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.70),
+          rgba(77,124,255,0.80)
+        );
+
+      border-color:
+        rgba(0,234,255,0.75);
+
+      color: #ffffff;
+    }
+
+    .calc-btn.danger {
+      background:
+        rgba(255,60,100,0.08);
+
+      border-color:
+        rgba(255,90,125,0.28);
+
+      color: #ffb0c0;
+    }
+
+    .calc-btn.fraction {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0,234,255,0.12),
+          rgba(155,92,255,0.14)
+        );
+
+      border-color:
+        rgba(0,234,255,0.36);
+
+      color: #dffaff;
+    }
+
+    .calc-btn.help {
+      background:
+        rgba(255,255,255,0.055);
+
+      border-color:
+        rgba(255,255,255,0.18);
+    }
+
+    .fraction-status {
+      min-height: 48px;
+
+      padding: 9px 12px;
+
+      border-radius: 9px;
+
+      border:
+        1px solid rgba(155,92,255,0.22);
+
+      background:
+        rgba(155,92,255,0.05);
+
+      color: #d9caff;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+    }
+
+    .fraction-status-text {
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .fraction-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .fraction-preview-stack {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      min-width: 38px;
+
+      line-height: 1.05;
+    }
+
+    .fraction-preview-numerator {
+      border-bottom:
+        2px solid #dffaff;
+
+      padding: 0 5px 3px;
+    }
+
+    .fraction-preview-denominator {
+      padding: 3px 5px 0;
+    }
+
+    .mixed-number-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mixed-number-integer {
+      font-size: 1.05rem;
+    }
+
+    .calculator-help {
+      display: none;
+
+      padding: 14px;
+
+      border:
+        1px solid rgba(0,234,255,0.18);
+
+      border-radius: 10px;
+
+      background:
+        rgba(0,234,255,0.035);
+
+      color: #d7e9fb;
+
+      line-height: 1.7;
+
+      font-size: 0.88rem;
+    }
+
+    .calculator-help.show {
+      display: block;
+    }
+
+    .calculator-help strong {
+      color: #8fefff;
+    }
+
+    .calculator-error {
+      color: #ff9db2;
+
+      font-weight: 700;
+    }
+
+    .calculator-result-fraction {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+    }
+
+    .result-mixed-integer {
+      font-size: 1.55rem;
+      font-weight: 800;
+    }
+
+    .result-fraction-stack {
+      display: inline-flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      justify-content: center;
+
+      line-height: 1.0;
+    }
+
+    .result-fraction-numerator {
+      border-bottom:
+        3px solid #ffffff;
+
+      padding:
+        0 8px 5px;
+
+      font-size: 1.25rem;
+    }
+
+    .result-fraction-denominator {
+      padding:
+        5px 8px 0;
+
+      font-size: 1.25rem;
+    }
+
+    @media (max-width: 780px) {
+
+      .header-btns {
+        gap: 5px;
+      }
+
+      .toggle-label {
+        display: none;
+      }
+
+      .memo-split-container {
+        flex-direction: column;
+      }
+
+      .input-box {
+        gap: 6px;
+      }
+
+      .send-btn {
+        padding: 0 16px;
+      }
+
+      .message {
+        max-width: 94%;
+      }
+
+      .lang-box {
+        flex-direction: column;
+      }
+
+      .language-panel {
+        right: -5px;
+        width: min(255px, calc(100vw - 30px));
+      }
+
+      .sidebar-header {
+        padding: 10px 12px;
+      }
+
+      .sidebar-header .toggle-sidebar-btn {
+        padding: 6px 9px;
+      }
+
+      .calculator-buttons {
+        gap: 6px;
+      }
+
+      .calc-btn {
+        min-height: 49px;
+        font-size: 0.96rem;
+      }
+
+      .calculator-main-display {
+        font-size: 1.55rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       Sidebar
+       ========================= -->
+
+  <div id="sidebar" class="collapsed">
+
+    <div class="sidebar-header">
+
+      <button
+        id="sidebarToggleBtn"
+        class="toggle-sidebar-btn"
+        onclick="toggleSidebar()"
+        aria-label="履歴を開く"
+        title="履歴を開く"
+      >
+        ⇒ 履歴
+      </button>
+
+      <h3 id="sidebarTitle">
+        💬 会話履歴
+      </h3>
+
+    </div>
+
+    <button
+      class="new-chat-btn"
+      onclick="createNewChat()"
+      id="newChatBtn"
+    >
+      ＋ 新しいチャット
+    </button>
+
+    <div
+      id="historyList"
+      class="history-list"
+    ></div>
+
+  </div>
+
+
+  <!-- =========================
+       Main
+       ========================= -->
+
+  <div class="main-wrapper">
+
+    <header>
+
+      <div class="header-left">
+
+        <h1 id="appTitle">
+          SEARCH AI Pro2.0
+        </h1>
+
+      </div>
+
+
+      <div class="header-btns">
+
+        <!-- 通知 -->
+        <label class="toggle-label">
+
+          <input
+            type="checkbox"
+            id="notifyToggle"
+            onchange="toggleNotificationSetting(this.checked)"
+          >
+
+          <span id="labelNotify">
+            🔔 通知
+          </span>
+
+        </label>
+
+
+        <!-- 検索 -->
+        <label class="toggle-label">
+
+          <input
+            type="checkbox"
+            id="searchMode"
+          >
+
+          <span id="labelSearch">
+            🌐 検索
+          </span>
+
+        </label>
+
+
+        <!-- Language -->
+        <div class="language-menu-wrap">
+
+          <button
+            id="languageButton"
+            class="language-btn"
+            type="button"
+            onclick="toggleLanguagePanel()"
+          >
+            🌐 Language
+          </button>
+
+
+          <div
+            id="languagePanel"
+            class="language-panel"
+          >
+
+            <div
+              id="languagePanelTitle"
+              class="language-panel-title"
+            >
+              🌐 言語設定
+            </div>
+
+
+            <div class="language-options">
+
+              <button
+                class="language-option"
+                data-lang="ja"
+                onclick="selectUiLanguage('ja')"
+              >
+                日本語
+              </button>
+
+              <button
+                class="language-option"
+                data-lang="en"
+                onclick="selectUiLanguage('en')"
+              >
+                English
+              </button>
+
+              <button
+                class="language-option"
+                data-lang="zh"
+                onclick="selectUiLanguage('zh')"
+              >
+                中文
+              </button>
+
+              <button
+                class="language-option"
+                data-lang="ko"
+                onclick="selectUiLanguage('ko')"
+              >
+                한국어
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- 機能 -->
+        <button
+          id="menuBtn"
+          class="btn"
+        >
+          ⚡ <span id="labelFeature">機能</span>
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <main id="chatLog"></main>
+
+
+    <footer>
+
+      <div class="input-box">
+
+        <textarea
+          id="promptInput"
+          placeholder="メッセージを入力... (Enter: 送信 / Shift+Enter: 改行)"
+        ></textarea>
+
+        <button
+          id="voiceBtn"
+          class="voice-btn"
+          title="音声入力"
+          aria-label="音声入力"
+        >
+          🎙️
+        </button>
+
+        <button
+          id="sendBtn"
+          class="send-btn"
+        >
+          送信
+        </button>
+
+      </div>
+
+    </footer>
+
+  </div>
+
+
+  <!-- =========================
+       Feature Modal
+       ========================= -->
+
+  <div
+    id="featureModal"
+    class="modal"
+  >
+
+    <div class="modal-content">
+
+      <button
+        id="closeModal"
+        class="close-btn"
+        aria-label="閉じる"
+      >
+        &times;
+      </button>
+
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+
+        <button
+          class="tab-btn active"
+          onclick="switchTab(event, 'memoTab')"
+          id="tabMemo"
+        >
+          📝 メモ
+        </button>
+
+        <button
+          class="tab-btn"
+          onclick="switchTab(event, 'docTab')"
+          id="tabDoc"
+        >
+          📄 ドキュメント
+        </button>
+
+        <button
+          class="tab-btn"
+          onclick="switchTab(event, 'transTab')"
+          id="tabTrans"
+        >
+          🌐 翻訳
+        </button>
+
+        <button
+          class="tab-btn"
+          onclick="switchTab(event, 'calculatorTab')"
+          id="tabCalculator"
+        >
+          🧮 電卓
+        </button>
+
+      </div>
+
+
+      <!-- =====================
+           Memo
+           ===================== -->
+
+      <div
+        id="memoTab"
+        class="tab-content active"
+      >
+
+        <div class="memo-split-container">
+
+          <div class="memo-left-panel">
+
+            <div
+              class="memo-panel-title"
+              id="memoEditTitle"
+            >
+              ✍️ メモ編集・作成
+            </div>
+
+            <input
+              type="text"
+              id="memoTitleInput"
+              class="memo-title-input"
+              placeholder="タイトルを入力..."
+            >
+
+            <div class="editor-voice-row">
+
+              <textarea
+                id="memoEditor"
+                class="memo-editor editor-voice-target"
+                placeholder="ここにメモや要約を入力・編集..."
+              ></textarea>
+
+              <button
+                id="memoVoiceBtn"
+                class="editor-voice-btn"
+                type="button"
+                title="メモに音声入力"
+                onclick="toggleFieldVoice('memoEditor', this)"
+              >
+                🎙️
+              </button>
+
+            </div>
+
+            <div class="memo-action-btns">
+
+              <button
+                class="btn"
+                id="memoSaveBtn"
+                style="
+                  background:linear-gradient(
+                    135deg,
+                    rgba(0,234,255,0.35),
+                    rgba(77,124,255,0.35)
+                  );
+                  border-color:rgba(0,234,255,0.55);
+                  color:white;
+                "
+                onclick="saveMemoItem()"
+              >
+                💾 保存 / 上書き
+              </button>
+
+              <button
+                class="btn"
+                id="memoDownloadBtn"
+                onclick="downloadMemoTxt()"
+              >
+                📥 TXTダウンロード
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="memo-right-panel">
+
+            <div
+              class="memo-panel-title"
+              id="memoListTitle"
+            >
+              📚 保存されたメモ一覧
+            </div>
+
+            <div
+              id="memoSavedList"
+              class="saved-list"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =====================
+           Document
+           ===================== -->
+
+      <div
+        id="docTab"
+        class="tab-content"
+      >
+
+        <div class="doc-header">
+
+          <input
+            type="text"
+            id="docTitle"
+            class="doc-title-input"
+            placeholder="タイトルを入力..."
+          >
+
+          <div class="doc-actions">
+
+            <button
+              class="btn"
+              id="docListBtn"
+              onclick="renderDocList()"
+            >
+              📂 リスト
+            </button>
+
+            <button
+              class="btn"
+              id="docSaveBtn"
+              onclick="saveCurrentDoc()"
+            >
+              💾 保存
+            </button>
+
+            <button
+              class="btn"
+              id="docDownloadBtn"
+              onclick="downloadTxt()"
+            >
+              📥 .txt
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="editor-voice-row">
+
+          <textarea
+            id="docEditor"
+            class="doc-editor editor-voice-target"
+            placeholder="ここにドキュメントを入力・編集..."
+          ></textarea>
+
+          <button
+            id="docVoiceBtn"
+            class="editor-voice-btn"
+            type="button"
+            title="ドキュメントに音声入力"
+            onclick="toggleFieldVoice('docEditor', this)"
+          >
+            🎙️
+          </button>
+
+        </div>
+
+
+        <div
+          id="docListContainer"
+          class="saved-list"
+        ></div>
+
+      </div>
+
+
+      <!-- =====================
+           Translation
+           ===================== -->
+
+      <div
+        id="transTab"
+        class="tab-content"
+      >
+
+        <div class="lang-box">
+
+          <input
+            type="text"
+            id="langSearch"
+            class="lang-search"
+            placeholder="言語を検索..."
+            oninput="filterLangs()"
+          >
+
+          <select
+            id="langSelect"
+            class="lang-select"
+          >
+
+            <option
+              value="日本語"
+              data-code="ja-JP"
+            >
+              日本語 (Japanese)
+            </option>
+
+            <option
+              value="英語"
+              data-code="en-US"
+            >
+              英語 (English)
+            </option>
+
+            <option
+              value="中国語"
+              data-code="zh-CN"
+            >
+              中国語 (Chinese)
+            </option>
+
+            <option
+              value="韓国語"
+              data-code="ko-KR"
+            >
+              韓国語 (Korean)
+            </option>
+
+            <option
+              value="スペイン語"
+              data-code="es-ES"
+            >
+              スペイン語 (Spanish)
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="editor-voice-row">
+
+          <textarea
+            id="transInput"
+            class="trans-textarea editor-voice-target"
+            placeholder="翻訳したいテキストを入力..."
+          ></textarea>
+
+          <button
+            id="transVoiceBtn"
+            class="editor-voice-btn"
+            type="button"
+            title="翻訳文に音声入力"
+            onclick="toggleFieldVoice('transInput', this)"
+          >
+            🎙️
+          </button>
+
+        </div>
+
+
+        <button
+          id="btnTrans"
+          class="btn"
+          style="
+            background:linear-gradient(
+              135deg,
+              rgba(0,234,255,0.35),
+              rgba(77,124,255,0.35)
+            );
+            border-color:rgba(0,234,255,0.55);
+            color:white;
+            padding:8px;
+          "
+          onclick="runTranslation()"
+        >
+          翻訳実行
+        </button>
+
+
+        <div
+          id="transResult"
+          class="trans-result"
+        >
+          翻訳結果がここに表示されます
+        </div>
+
+
+        <div class="doc-actions">
+
+          <button
+            class="btn"
+            id="transCopyBtn"
+            onclick="copyTrans()"
+          >
+            📋 コピー
+          </button>
+
+          <button
+            class="btn"
+            id="transSpeakBtn"
+            onclick="speakTranslation()"
+          >
+            🔊 読み上げ
+          </button>
+
+          <button
+            class="btn speech-btn stop-btn"
+            id="transStopBtn"
+            onclick="stopSpeech()"
+          >
+            ⏹️ 停止
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- =====================
+           Calculator
+           ===================== -->
+
+      <div
+        id="calculatorTab"
+        class="tab-content"
+      >
+
+        <div class="calculator-area">
+
+          <div class="calculator-display">
+
+            <div
+              id="calculatorExpression"
+              class="calculator-expression"
+            >
+              0
+            </div>
+
+            <div
+              id="calculatorMainDisplay"
+              class="calculator-main-display"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div
+            id="fractionStatus"
+            class="fraction-status"
+          >
+
+            <div
+              id="fractionStatusText"
+              class="fraction-status-text"
+            >
+              通常入力
+            </div>
+
+            <div
+              id="fractionPreview"
+              class="fraction-preview"
+            >
+            </div>
+
+          </div>
+
+
+          <div class="calculator-buttons">
+
+            <button
+              class="calc-btn danger"
+              onclick="calculatorClear()"
+            >
+              C
+            </button>
+
+            <button
+              class="calc-btn danger"
+              onclick="calculatorBackspace()"
+            >
+              ⌫
+            </button>
+
+            <button
+              class="calc-btn help"
+              onclick="toggleCalculatorHelp()"
+            >
+              ?
+            </button>
+
+            <button
+              class="calc-btn operator"
+              onclick="calculatorOperator('÷')"
+            >
+              ÷
+            </button>
+
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('7')"
+            >
+              7
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('8')"
+            >
+              8
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('9')"
+            >
+              9
+            </button>
+
+            <button
+              class="calc-btn operator"
+              onclick="calculatorOperator('×')"
+            >
+              ×
+            </button>
+
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('4')"
+            >
+              4
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('5')"
+            >
+              5
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('6')"
+            >
+              6
+            </button>
+
+            <button
+              class="calc-btn operator"
+              onclick="calculatorOperator('−')"
+            >
+              −
+            </button>
+
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('1')"
+            >
+              1
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('2')"
+            >
+              2
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('3')"
+            >
+              3
+            </button>
+
+            <button
+              class="calc-btn operator"
+              onclick="calculatorOperator('+')"
+            >
+              ＋
+            </button>
+
+
+            <button
+              class="calc-btn fraction"
+              onclick="calculatorDecimal()"
+            >
+              .
+            </button>
+
+            <button
+              class="calc-btn"
+              onclick="calculatorNumber('0')"
+            >
+              0
+            </button>
+
+            <button
+              class="calc-btn fraction"
+              onclick="calculatorFractionStep()"
+            >
+              分数
+            </button>
+
+            <button
+              class="calc-btn equal"
+              onclick="calculatorEquals()"
+            >
+              ＝
+            </button>
+
+          </div>
+
+
+          <div
+            id="calculatorHelp"
+            class="calculator-help"
+          ></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================
+       基本
+       ========================= */
+
+    function sanitizeHTML(str) {
+
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    }
+
+
+    const menuBtn =
+      document.getElementById('menuBtn');
+
+    const featureModal =
+      document.getElementById('featureModal');
+
+    const closeModal =
+      document.getElementById('closeModal');
+
+    const sendBtn =
+      document.getElementById('sendBtn');
+
+    const promptInput =
+      document.getElementById('promptInput');
+
+    const chatLog =
+      document.getElementById('chatLog');
+
+    const searchMode =
+      document.getElementById('searchMode');
+
+    const sidebar =
+      document.getElementById('sidebar');
+
+    const sidebarToggleBtn =
+      document.getElementById('sidebarToggleBtn');
+
+    const sidebarHeader =
+      document.querySelector('.sidebar-header');
+
+    const sidebarTitle =
+      document.getElementById('sidebarTitle');
+
+    const headerLeft =
+      document.querySelector('.header-left');
+
+    const voiceBtn =
+      document.getElementById('voiceBtn');
+
+    const memoTitleInput =
+      document.getElementById('memoTitleInput');
+
+    const memoEditor =
+      document.getElementById('memoEditor');
+
+
+    let currentSessionId = null;
+    let chatHistory = [];
+
+    let currentMemoId = null;
+    let currentDocId = null;
+
+    let currentUiLang =
+      localStorage.getItem('ui_lang') || 'ja';
+
+    let isAppNotifyEnabled =
+      localStorage.getItem('app_notify_enabled') === 'true';
+
+    const apiQueue = [];
+
+    let isProcessingQueue = false;
+
+
+    /* =========================
+       チャット最下部へ移動
+       ========================= */
+
+    function scrollChatToBottom() {
+
+      requestAnimationFrame(() => {
+
+        chatLog.scrollTop =
+          chatLog.scrollHeight;
+
+        setTimeout(() => {
+
+          chatLog.scrollTop =
+            chatLog.scrollHeight;
+
+        }, 50);
+
+      });
+
+    }
+
+
+    /* =========================
+       UI言語
+       ========================= */
+
+    const UI_LANG_NAMES = {
+      ja: "日本語",
+      en: "English",
+      zh: "中文",
+      ko: "한국어"
+    };
+
+
+    const UI_TEXT = {
+
+      ja: {
+
+        placeholderMsg:
+          "メッセージを入力... (Enter: 送信 / Shift+Enter: 改行)",
+
+        btnSend:
+          "送信",
+
+        labelSearch:
+          "🌐 検索",
+
+        labelFeature:
+          "機能",
+
+        labelNotify:
+          "🔔 通知",
+
+        sidebarTitle:
+          "💬 会話履歴",
+
+        newChat:
+          "＋ 新しいチャット",
+
+        languagePanelTitle:
+          "🌐 言語設定",
+
+        memoTab:
+          "📝 メモ",
+
+        docTab:
+          "📄 ドキュメント",
+
+        transTab:
+          "🌐 翻訳",
+
+        calculatorTab:
+          "🧮 電卓",
+
+        calculatorNormal:
+          "通常入力",
+
+        fractionInteger:
+          "分数入力：整数部分",
+
+        fractionDenominator:
+          "分数入力：分母",
+
+        fractionNumerator:
+          "分数入力：分子",
+
+        fractionFinished:
+          "分数入力終了",
+
+        calculatorError:
+          "計算できません。",
+
+        calculatorDivideZero:
+          "0で割ることはできません。",
+
+        calculatorHelpTitle:
+          "🧮 電卓の使い方",
+
+        calculatorHelpText:
+          "数字ボタンで数字を入力します。＋・−・×・÷で四則演算ができます。<br><br><strong>分数の入力</strong><br>「分数」を1回押す → 整数部分を入力<br>「分数」を2回目 → 分母を入力<br>「分数」を3回目 → 分子を入力<br>「分数」を4回目 → 分数入力を終了<br><br>例：2と3/5を入力する場合は、<strong>分数 → 2 → 分数 → 5 → 分数 → 3 → 分数</strong>の順です。<br><br>分数は上が分子、下が分母として表示されます。計算結果は自動で約分され、仮分数になった場合は帯分数に直します。",
+
+        memoEditTitle:
+          "✍️ メモ編集・作成",
+
+        memoTitlePlaceholder:
+          "タイトルを入力...",
+
+        memoEditorPlaceholder:
+          "ここにメモや要約を入力・編集...",
+
+        memoSave:
+          "💾 保存 / 上書き",
+
+        memoDownload:
+          "📥 TXTダウンロード",
+
+        memoListTitle:
+          "📚 保存されたメモ一覧",
+
+        docTitlePlaceholder:
+          "タイトルを入力...",
+
+        docList:
+          "📂 リスト",
+
+        docSave:
+          "💾 保存",
+
+        docDownload:
+          "📥 .txt",
+
+        docEditorPlaceholder:
+          "ここにドキュメントを入力・編集...",
+
+        langSearchPlaceholder:
+          "言語を検索...",
+
+        transInputPlaceholder:
+          "翻訳したいテキストを入力...",
+
+        translate:
+          "翻訳実行",
+
+        transPlaceholder:
+          "翻訳結果がここに表示されます",
+
+        transCopy:
+          "📋 コピー",
+
+        transSpeak:
+          "🔊 読み上げ",
+
+        transStop:
+          "⏹️ 停止",
+
+        newMemoRequired:
+          "メモ本文を入力してください",
+
+        memoSaved:
+          "メモを保存しました！",
+
+        memoDownloadEmpty:
+          "ダウンロードするメモ内容がありません",
+
+        deleteMemo:
+          "このメモを削除しますか？",
+
+        newDoc:
+          "無題のドキュメント",
+
+        docSaved:
+          "ドキュメントを保存しました！",
+
+        deleteDoc:
+          "このドキュメントを削除しますか？",
+
+        translateRequired:
+          "翻訳する文章を入力してください",
+
+        translating:
+          "翻訳中...",
+
+        translateError:
+          "翻訳エラーが発生しました。",
+
+        copySuccess:
+          "コピーしました！",
+
+        noSavedMemo:
+          "保存されたメモはありません",
+
+        noSavedDoc:
+          "保存されたドキュメントはありません。",
+
+        micUnsupported:
+          "このブラウザは音声入力に対応していません。Chromeなどの対応ブラウザを使用してください。",
+
+        micDenied:
+          "マイクの使用が許可されていません。ブラウザの設定を確認してください。",
+
+        voiceInput:
+          "音声入力",
+
+        voiceStop:
+          "音声入力を停止",
+
+        sidebarOpen:
+          "履歴を開く",
+
+        sidebarClose:
+          "履歴を閉じる",
+
+        deleting:
+          "削除",
+
+        noSummary:
+          "要約がありません。"
+
+      },
+
+
+      en: {
+
+        placeholderMsg:
+          "Type a message... (Enter: Send / Shift+Enter: Line break)",
+
+        btnSend:
+          "Send",
+
+        labelSearch:
+          "🌐 Search",
+
+        labelFeature:
+          "Features",
+
+        labelNotify:
+          "🔔 Notifications",
+
+        sidebarTitle:
+          "💬 Chat History",
+
+        newChat:
+          "＋ New Chat",
+
+        languagePanelTitle:
+          "🌐 Language Settings",
+
+        memoTab:
+          "📝 Memo",
+
+        docTab:
+          "📄 Document",
+
+        transTab:
+          "🌐 Translation",
+
+        calculatorTab:
+          "🧮 Calculator",
+
+        calculatorNormal:
+          "Normal input",
+
+        fractionInteger:
+          "Fraction input: integer",
+
+        fractionDenominator:
+          "Fraction input: denominator",
+
+        fractionNumerator:
+          "Fraction input: numerator",
+
+        fractionFinished:
+          "Fraction input finished",
+
+        calculatorError:
+          "Cannot calculate.",
+
+        calculatorDivideZero:
+          "Cannot divide by zero.",
+
+        calculatorHelpTitle:
+          "🧮 Calculator Help",
+
+        calculatorHelpText:
+          "Use the number buttons to enter numbers. Use +, −, × and ÷ for arithmetic.<br><br><strong>Fraction input</strong><br>Press “Fraction” once → enter the integer part.<br>Press it a second time → enter the denominator.<br>Press it a third time → enter the numerator.<br>Press it a fourth time → finish fraction input.<br><br>Example: to enter 2 and 3/5, use <strong>Fraction → 2 → Fraction → 5 → Fraction → 3 → Fraction</strong>.<br><br>The numerator is displayed above the fraction bar and the denominator below it. Results are automatically reduced, and improper fractions are converted to mixed numbers.",
+
+        memoEditTitle:
+          "✍️ Edit / Create Memo",
+
+        memoTitlePlaceholder:
+          "Enter a title...",
+
+        memoEditorPlaceholder:
+          "Enter or edit a memo or summary here...",
+
+        memoSave:
+          "💾 Save / Overwrite",
+
+        memoDownload:
+          "📥 Download TXT",
+
+        memoListTitle:
+          "📚 Saved Memos",
+
+        docTitlePlaceholder:
+          "Enter a title...",
+
+        docList:
+          "📂 List",
+
+        docSave:
+          "💾 Save",
+
+        docDownload:
+          "📥 .txt",
+
+        docEditorPlaceholder:
+          "Enter or edit the document here...",
+
+        langSearchPlaceholder:
+          "Search languages...",
+
+        transInputPlaceholder:
+          "Enter text to translate...",
+
+        translate:
+          "Translate",
+
+        transPlaceholder:
+          "Translation result will appear here",
+
+        transCopy:
+          "📋 Copy",
+
+        transSpeak:
+          "🔊 Speak",
+
+        transStop:
+          "⏹️ Stop",
+
+        newMemoRequired:
+          "Please enter memo text.",
+
+        memoSaved:
+          "Memo saved!",
+
+        memoDownloadEmpty:
+          "There is no memo content to download.",
+
+        deleteMemo:
+          "Delete this memo?",
+
+        newDoc:
+          "Untitled Document",
+
+        docSaved:
+          "Document saved!",
+
+        deleteDoc:
+          "Delete this document?",
+
+        translateRequired:
+          "Please enter text to translate.",
+
+        translating:
+          "Translating...",
+
+        translateError:
+          "A translation error occurred.",
+
+        copySuccess:
+          "Copied!",
+
+        noSavedMemo:
+          "No saved memos.",
+
+        noSavedDoc:
+          "No saved documents.",
+
+        micUnsupported:
+          "This browser does not support voice input. Please use a compatible browser such as Chrome.",
+
+        micDenied:
+          "Microphone access was not allowed. Please check your browser settings.",
+
+        voiceInput:
+          "Voice input",
+
+        voiceStop:
+          "Stop voice input",
+
+        sidebarOpen:
+          "Open history",
+
+        sidebarClose:
+          "Close history",
+
+        deleting:
+          "Delete",
+
+        noSummary:
+          "No summary available."
+
+      },
+
+
+      zh: {
+
+        placeholderMsg:
+          "输入消息... (Enter: 发送 / Shift+Enter: 换行)",
+
+        btnSend:
+          "发送",
+
+        labelSearch:
+          "🌐 搜索",
+
+        labelFeature:
+          "功能",
+
+        labelNotify:
+          "🔔 通知",
+
+        sidebarTitle:
+          "💬 对话历史",
+
+        newChat:
+          "＋ 新聊天",
+
+        languagePanelTitle:
+          "🌐 语言设置",
+
+        memoTab:
+          "📝 备忘录",
+
+        docTab:
+          "📄 文档",
+
+        transTab:
+          "🌐 翻译",
+
+        calculatorTab:
+          "🧮 计算器",
+
+        calculatorNormal:
+          "普通输入",
+
+        fractionInteger:
+          "分数输入：整数部分",
+
+        fractionDenominator:
+          "分数输入：分母",
+
+        fractionNumerator:
+          "分数输入：分子",
+
+        fractionFinished:
+          "分数输入结束",
+
+        calculatorError:
+          "无法计算。",
+
+        calculatorDivideZero:
+          "不能除以零。",
+
+        calculatorHelpTitle:
+          "🧮 计算器使用方法",
+
+        calculatorHelpText:
+          "使用数字按钮输入数字。使用＋、−、×、÷进行四则运算。<br><br><strong>分数输入</strong><br>第一次按“分数”→输入整数部分。<br>第二次→输入分母。<br>第三次→输入分子。<br>第四次→结束分数输入。<br><br>例如输入2又3/5：<strong>分数 → 2 → 分数 → 5 → 分数 → 3 → 分数</strong>。<br><br>分子显示在分数线的上方，分母显示在下方。计算结果会自动约分，假分数会转换成带分数。",
+
+        memoEditTitle:
+          "✍️ 编辑 / 创建备忘录",
+
+        memoTitlePlaceholder:
+          "请输入标题...",
+
+        memoEditorPlaceholder:
+          "在这里输入或编辑备忘录及摘要...",
+
+        memoSave:
+          "💾 保存 / 覆盖",
+
+        memoDownload:
+          "📥 下载 TXT",
+
+        memoListTitle:
+          "📚 已保存的备忘录",
+
+        docTitlePlaceholder:
+          "请输入标题...",
+
+        docList:
+          "📂 列表",
+
+        docSave:
+          "💾 保存",
+
+        docDownload:
+          "📥 .txt",
+
+        docEditorPlaceholder:
+          "在这里输入或编辑文档...",
+
+        langSearchPlaceholder:
+          "搜索语言...",
+
+        transInputPlaceholder:
+          "请输入要翻译的文本...",
+
+        translate:
+          "翻译",
+
+        transPlaceholder:
+          "翻译结果将在这里显示",
+
+        transCopy:
+          "📋 复制",
+
+        transSpeak:
+          "🔊 朗读",
+
+        transStop:
+          "⏹️ 停止",
+
+        newMemoRequired:
+          "请输入备忘录内容。",
+
+        memoSaved:
+          "备忘录已保存！",
+
+        memoDownloadEmpty:
+          "没有可下载的备忘录内容。",
+
+        deleteMemo:
+          "确定删除此备忘录吗？",
+
+        newDoc:
+          "未命名文档",
+
+        docSaved:
+          "文档已保存！",
+
+        deleteDoc:
+          "确定删除此文档吗？",
+
+        translateRequired:
+          "请输入要翻译的文本。",
+
+        translating:
+          "翻译中...",
+
+        translateError:
+          "翻译时发生错误。",
+
+        copySuccess:
+          "已复制！",
+
+        noSavedMemo:
+          "没有已保存的备忘录。",
+
+        noSavedDoc:
+          "没有已保存的文档。",
+
+        micUnsupported:
+          "此浏览器不支持语音输入，请使用 Chrome 等兼容浏览器。",
+
+        micDenied:
+          "未允许使用麦克风，请检查浏览器设置。",
+
+        voiceInput:
+          "语音输入",
+
+        voiceStop:
+          "停止语音输入",
+
+        sidebarOpen:
+          "打开历史记录",
+
+        sidebarClose:
+          "关闭历史记录",
+
+        deleting:
+          "删除",
+
+        noSummary:
+          "没有可用的摘要。"
+
+      },
+
+
+      ko: {
+
+        placeholderMsg:
+          "메시지를 입력하세요... (Enter: 전송 / Shift+Enter: 줄바꿈)",
+
+        btnSend:
+          "전송",
+
+        labelSearch:
+          "🌐 검색",
+
+        labelFeature:
+          "기능",
+
+        labelNotify:
+          "🔔 알림",
+
+        sidebarTitle:
+          "💬 대화 기록",
+
+        newChat:
+          "＋ 새 채팅",
+
+        languagePanelTitle:
+          "🌐 언어 설정",
+
+        memoTab:
+          "📝 메모",
+
+        docTab:
+          "📄 문서",
+
+        transTab:
+          "🌐 번역",
+
+        calculatorTab:
+          "🧮 계산기",
+
+        calculatorNormal:
+          "일반 입력",
+
+        fractionInteger:
+          "분수 입력: 정수 부분",
+
+        fractionDenominator:
+          "분수 입력: 분모",
+
+        fractionNumerator:
+          "분수 입력: 분자",
+
+        fractionFinished:
+          "분수 입력 종료",
+
+        calculatorError:
+          "계산할 수 없습니다.",
+
+        calculatorDivideZero:
+          "0으로 나눌 수 없습니다.",
+
+        calculatorHelpTitle:
+          "🧮 계산기 사용법",
+
+        calculatorHelpText:
+          "숫자 버튼으로 숫자를 입력합니다. +, −, ×, ÷로 사칙연산을 합니다.<br><br><strong>분수 입력</strong><br>‘분수’를 한 번 누름 → 정수 부분 입력<br>두 번 누름 → 분모 입력<br>세 번 누름 → 분자 입력<br>네 번 누름 → 분수 입력 종료<br><br>예: 2와 3/5를 입력하려면 <strong>분수 → 2 → 분수 → 5 → 분수 → 3 → 분수</strong> 순서입니다.<br><br>분자는 분수선 위, 분모는 아래에 표시됩니다. 결과는 자동으로 약분되며 가분수는 대분수로 변환됩니다.",
+
+        memoEditTitle:
+          "✍️ 메모 편집 / 작성",
+
+        memoTitlePlaceholder:
+          "제목을 입력하세요...",
+
+        memoEditorPlaceholder:
+          "여기에 메모나 요약을 입력 / 편집하세요...",
+
+        memoSave:
+          "💾 저장 / 덮어쓰기",
+
+        memoDownload:
+          "📥 TXT 다운로드",
+
+        memoListTitle:
+          "📚 저장된 메모",
+
+        docTitlePlaceholder:
+          "제목을 입력하세요...",
+
+        docList:
+          "📂 목록",
+
+        docSave:
+          "💾 저장",
+
+        docDownload:
+          "📥 .txt",
+
+        docEditorPlaceholder:
+          "여기에 문서를 입력 / 편집하세요...",
+
+        langSearchPlaceholder:
+          "언어 검색...",
+
+        transInputPlaceholder:
+          "번역할 텍스트를 입력하세요...",
+
+        translate:
+          "번역",
+
+        transPlaceholder:
+          "번역 결과가 여기에 표시됩니다",
+
+        transCopy:
+          "📋 복사",
+
+        transSpeak:
+          "🔊 읽기",
+
+        transStop:
+          "⏹️ 정지",
+
+        newMemoRequired:
+          "메모 내용을 입력하세요.",
+
+        memoSaved:
+          "메모가 저장되었습니다!",
+
+        memoDownloadEmpty:
+          "다운로드할 메모 내용이 없습니다.",
+
+        deleteMemo:
+          "이 메모를 삭제하시겠습니까?",
+
+        newDoc:
+          "제목 없는 문서",
+
+        docSaved:
+          "문서가 저장되었습니다!",
+
+        deleteDoc:
+          "이 문서를 삭제하시겠습니까?",
+
+        translateRequired:
+          "번역할 텍스트를 입력하세요.",
+
+        translating:
+          "번역 중...",
+
+        translateError:
+          "번역 오류가 발생했습니다.",
+
+        copySuccess:
+          "복사되었습니다!",
+
+        noSavedMemo:
+          "저장된 메모가 없습니다.",
+
+        noSavedDoc:
+          "저장된 문서가 없습니다.",
+
+        micUnsupported:
+          "이 브라우저는 음성 입력을 지원하지 않습니다. Chrome과 같은 지원 브라우저를 사용하세요.",
+
+        micDenied:
+          "마이크 사용이 허용되지 않았습니다. 브라우저 설정을 확인하세요.",
+
+        voiceInput:
+          "음성 입력",
+
+        voiceStop:
+          "음성 입력 중지",
+
+        sidebarOpen:
+          "기록 열기",
+
+        sidebarClose:
+          "기록 닫기",
+
+        deleting:
+          "삭제",
+
+        noSummary:
+          "요약이 없습니다."
+
+      }
+
+    };
+
+
+    function getTexts() {
+
+      return UI_TEXT[
+        currentUiLang
+      ] || UI_TEXT.ja;
+
+    }
+
+
+    /* =========================
+       Language Panel
+       ========================= */
+
+    function toggleLanguagePanel() {
+
+      const panel =
+        document.getElementById(
+          'languagePanel'
+        );
+
+      panel.classList.toggle(
+        'show'
+      );
+
+    }
+
+
+    function selectUiLanguage(
+      lang
+    ) {
+
+      if (
+        !UI_TEXT[lang]
+      ) return;
+
+      stopFieldVoice();
+
+      currentUiLang =
+        lang;
+
+      localStorage.setItem(
+        'ui_lang',
+        lang
+      );
+
+      applyUiLanguage();
+
+      document
+        .getElementById(
+          'languagePanel'
+        )
+        .classList.remove(
+          'show'
+        );
+
+    }
+
+
+    function applyUiLanguage() {
+
+      const texts =
+        getTexts();
+
+
+      document.getElementById(
+        'promptInput'
+      ).placeholder =
+        texts.placeholderMsg;
+
+
+      document.getElementById(
+        'sendBtn'
+      ).textContent =
+        texts.btnSend;
+
+
+      document.getElementById(
+        'labelSearch'
+      ).textContent =
+        texts.labelSearch;
+
+
+      document.getElementById(
+        'labelFeature'
+      ).textContent =
+        texts.labelFeature;
+
+
+      document.getElementById(
+        'labelNotify'
+      ).textContent =
+        texts.labelNotify;
+
+
+      document.getElementById(
+        'sidebarTitle'
+      ).textContent =
+        texts.sidebarTitle;
+
+
+      document.getElementById(
+        'newChatBtn'
+      ).textContent =
+        texts.newChat;
+
+
+      document.getElementById(
+        'languagePanelTitle'
+      ).textContent =
+        texts.languagePanelTitle;
+
+
+      document.getElementById(
+        'tabMemo'
+      ).textContent =
+        texts.memoTab;
+
+
+      document.getElementById(
+        'tabDoc'
+      ).textContent =
+        texts.docTab;
+
+
+      document.getElementById(
+        'tabTrans'
+      ).textContent =
+        texts.transTab;
+
+
+      document.getElementById(
+        'tabCalculator'
+      ).textContent =
+        texts.calculatorTab;
+
+
+      document.getElementById(
+        'memoEditTitle'
+      ).textContent =
+        texts.memoEditTitle;
+
+
+      document.getElementById(
+        'memoTitleInput'
+      ).placeholder =
+        texts.memoTitlePlaceholder;
+
+
+      document.getElementById(
+        'memoEditor'
+      ).placeholder =
+        texts.memoEditorPlaceholder;
+
+
+      document.getElementById(
+        'memoSaveBtn'
+      ).textContent =
+        texts.memoSave;
+
+
+      document.getElementById(
+        'memoDownloadBtn'
+      ).textContent =
+        texts.memoDownload;
+
+
+      document.getElementById(
+        'memoListTitle'
+      ).textContent =
+        texts.memoListTitle;
+
+
+      document.getElementById(
+        'docTitle'
+      ).placeholder =
+        texts.docTitlePlaceholder;
+
+
+      document.getElementById(
+        'docListBtn'
+      ).textContent =
+        texts.docList;
+
+
+      document.getElementById(
+        'docSaveBtn'
+      ).textContent =
+        texts.docSave;
+
+
+      document.getElementById(
+        'docDownloadBtn'
+      ).textContent =
+        texts.docDownload;
+
+
+      document.getElementById(
+        'docEditor'
+      ).placeholder =
+        texts.docEditorPlaceholder;
+
+
+      document.getElementById(
+        'langSearch'
+      ).placeholder =
+        texts.langSearchPlaceholder;
+
+
+      document.getElementById(
+        'transInput'
+      ).placeholder =
+        texts.transInputPlaceholder;
+
+
+      document.getElementById(
+        'btnTrans'
+      ).textContent =
+        texts.translate;
+
+
+      document.getElementById(
+        'transCopyBtn'
+      ).textContent =
+        texts.transCopy;
+
+
+      document.getElementById(
+        'transSpeakBtn'
+      ).textContent =
+        texts.transSpeak;
+
+
+      document.getElementById(
+        'transStopBtn'
+      ).textContent =
+        texts.transStop;
+
+
+      const transResult =
+        document.getElementById(
+          'transResult'
+        );
+
+
+      if (
+        transResult.textContent ===
+          UI_TEXT.ja.transPlaceholder ||
+        transResult.textContent ===
+          UI_TEXT.en.transPlaceholder ||
+        transResult.textContent ===
+          UI_TEXT.zh.transPlaceholder ||
+        transResult.textContent ===
+          UI_TEXT.ko.transPlaceholder ||
+        !transResult.textContent.trim()
+      ) {
+
+        transResult.textContent =
+          texts.transPlaceholder;
+
+      }
+
+
+      updateSidebarToggleButton();
+      updateLanguageOptions();
+
+
+      const voiceButtons =
+        document.querySelectorAll(
+          '.editor-voice-btn'
+        );
+
+
+      voiceButtons.forEach(
+        btn => {
+
+          if (
+            !btn.classList.contains(
+              'listening'
+            )
+          ) {
+
+            btn.title =
+              texts.voiceInput;
+
+          }
+
+        }
+      );
+
+
+      if (
+        !voiceBtn.classList.contains(
+          'listening'
+        )
+      ) {
+
+        voiceBtn.title =
+          texts.voiceInput;
+
+      }
+
+
+      updateCalculatorLanguage();
+
+      renderMemoSavedList();
+
+      renderDocList();
+
+      renderSidebarHistory();
+
+    }
+
+
+    function updateLanguageOptions() {
+
+      document
+        .querySelectorAll(
+          '.language-option'
+        )
+        .forEach(
+          btn => {
+
+            btn.classList.toggle(
+              'active',
+              btn.dataset.lang ===
+                currentUiLang
+            );
+
+          }
+        );
+
+    }
+
+
+    /* =========================
+       Sidebar
+       ========================= */
+
+    function updateSidebarToggleButton() {
+
+      const texts =
+        getTexts();
+
+
+      if (!sidebarToggleBtn)
+        return;
+
+
+      const isClosed =
+        sidebar.classList.contains(
+          'collapsed'
+        );
+
+
+      let label;
+
+      if (currentUiLang === 'en') {
+        label = 'History';
+      } else if (currentUiLang === 'zh') {
+        label = '历史';
+      } else if (currentUiLang === 'ko') {
+        label = '기록';
+      } else {
+        label = '履歴';
+      }
+
+
+      if (isClosed) {
+
+        if (
+          sidebarToggleBtn.parentElement !==
+          headerLeft
+        ) {
+
+          headerLeft.insertBefore(
+            sidebarToggleBtn,
+            headerLeft.firstChild
+          );
+
+        }
+
+
+        sidebarToggleBtn.textContent =
+          `⇒ ${label}`;
+
+        sidebarToggleBtn.setAttribute(
+          'aria-label',
+          texts.sidebarOpen
+        );
+
+        sidebarToggleBtn.title =
+          texts.sidebarOpen;
+
+      } else {
+
+        if (
+          sidebarToggleBtn.parentElement !==
+          sidebarHeader
+        ) {
+
+          sidebarHeader.insertBefore(
+            sidebarToggleBtn,
+            sidebarTitle
+          );
+
+        }
+
+
+        sidebarToggleBtn.textContent =
+          `⇐ ${label}`;
+
+        sidebarToggleBtn.setAttribute(
+          'aria-label',
+          texts.sidebarClose
+        );
+
+        sidebarToggleBtn.title =
+          texts.sidebarClose;
+
+      }
+
+    }
+
+
+    function toggleSidebar() {
+
+      sidebar.classList.toggle(
+        'collapsed'
+      );
+
+      updateSidebarToggleButton();
+
+    }
+
+
+    /* =========================
+       Notification
+       ========================= */
+
+    function toggleNotificationSetting(
+      enabled
+    ) {
+
+      isAppNotifyEnabled =
+        enabled;
+
+
+      localStorage.setItem(
+        'app_notify_enabled',
+        enabled
+      );
+
+
+      if (
+        enabled &&
+        'Notification' in window &&
+        Notification.permission ===
+          'default'
+      ) {
+
+        Notification.requestPermission();
+
+      }
+
+    }
+
+
+    function sendSystemNotification(
+      title,
+      body
+    ) {
+
+      if (
+        !isAppNotifyEnabled ||
+        !("Notification" in window) ||
+        Notification.permission !==
+          "granted"
+      ) return;
+
+
+      try {
+
+        const notification =
+          new Notification(
+            title,
+            {
+              body:
+                body,
+              tag:
+                'ai-reply'
+            }
+          );
+
+
+        notification.onclick =
+          function(event) {
+
+            event.preventDefault();
+
+            window.focus();
+
+            notification.close();
+
+          };
+
+      } catch (e) {
+
+        console.error(
+          "通知エラー:",
+          e
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       Voice Input
+       ========================= */
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+
+    let fieldRecognition = null;
+
+    let activeVoiceTarget = null;
+
+    let activeVoiceButton = null;
+
+    let activeVoiceRunning = false;
+
+
+    function getSpeechLanguage() {
+
+      const map = {
+
+        ja: 'ja-JP',
+        en: 'en-US',
+        zh: 'zh-CN',
+        ko: 'ko-KR'
+
+      };
+
+
+      return (
+        map[currentUiLang] ||
+        'ja-JP'
+      );
+
+    }
+
+
+    function resetVoiceButton(
+      button
+    ) {
+
+      if (!button)
+        return;
+
+
+      button.classList.remove(
+        'listening'
+      );
+
+
+      button.textContent =
+        '🎙️';
+
+
+      button.title =
+        getTexts().voiceInput;
+
+    }
+
+
+    function stopFieldVoice() {
+
+      activeVoiceRunning =
+        false;
+
+
+      const oldButton =
+        activeVoiceButton;
+
+      const oldRecognition =
+        fieldRecognition;
+
+
+      activeVoiceTarget =
+        null;
+
+      activeVoiceButton =
+        null;
+
+      fieldRecognition =
+        null;
+
+
+      if (oldButton) {
+
+        resetVoiceButton(
+          oldButton
+        );
+
+      }
+
+
+      if (oldRecognition) {
+
+        try {
+
+          oldRecognition.stop();
+
+        } catch (e) {}
+
+      }
+
+    }
+
+
+    function toggleFieldVoice(
+      targetId,
+      button
+    ) {
+
+      const texts =
+        getTexts();
+
+
+      if (!SpeechRecognition) {
+
+        alert(
+          texts.micUnsupported
+        );
+
+        return;
+
+      }
+
+
+      if (
+        activeVoiceRunning &&
+        activeVoiceButton === button
+      ) {
+
+        stopFieldVoice();
+
+        return;
+
+      }
+
+
+      if (activeVoiceRunning) {
+
+        stopFieldVoice();
+
+      }
+
+
+      const target =
+        document.getElementById(
+          targetId
+        );
+
+
+      if (!target)
+        return;
+
+
+      activeVoiceTarget =
+        target;
+
+      activeVoiceButton =
+        button;
+
+      activeVoiceRunning =
+        true;
+
+
+      button.classList.add(
+        'listening'
+      );
+
+      button.textContent =
+        '🔴';
+
+      button.title =
+        texts.voiceStop;
+
+
+      const recognition =
+        new SpeechRecognition();
+
+
+      fieldRecognition =
+        recognition;
+
+
+      recognition.continuous =
+        true;
+
+      recognition.interimResults =
+        true;
+
+      recognition.lang =
+        getSpeechLanguage();
+
+
+      let interimText = '';
+
+
+      recognition.onstart =
+        () => {
+
+          activeVoiceRunning =
+            true;
+
+        };
+
+
+      recognition.onresult =
+        (event) => {
+
+          let finalText =
+            '';
+
+          interimText =
+            '';
+
+
+          for (
+            let i =
+              event.resultIndex;
+            i <
+              event.results.length;
+            i++
+          ) {
+
+            const transcript =
+              event.results[i][0]
+                .transcript;
+
+
+            if (
+              event.results[i]
+                .isFinal
+            ) {
+
+              finalText +=
+                transcript;
+
+            } else {
+
+              interimText +=
+                transcript;
+
+            }
+
+          }
+
+
+          if (
+            finalText &&
+            activeVoiceTarget
+          ) {
+
+            activeVoiceTarget.value +=
+              finalText;
+
+          }
+
+
+          if (
+            activeVoiceButton
+          ) {
+
+            activeVoiceButton.title =
+              interimText
+                ? `認識中: ${interimText}`
+                : texts.voiceStop;
+
+          }
+
+        };
+
+
+      recognition.onerror =
+        (event) => {
+
+          console.error(
+            '音声認識エラー:',
+            event.error
+          );
+
+
+          if (
+            event.error ===
+              'not-allowed'
+          ) {
+
+            alert(
+              texts.micDenied
+            );
+
+          }
+
+
+          stopFieldVoice();
+
+        };
+
+
+      recognition.onend =
+        () => {
+
+          if (
+            activeVoiceRunning &&
+            activeVoiceTarget ===
+              target &&
+            fieldRecognition ===
+              recognition
+          ) {
+
+            try {
+
+              recognition.start();
+
+            } catch (e) {}
+
+          }
+
+        };
+
+
+      try {
+
+        recognition.start();
+
+      } catch (e) {
+
+        console.error(e);
+
+        stopFieldVoice();
+
+      }
+
+    }
+
+
+    voiceBtn.addEventListener(
+      'click',
+      () => {
+
+        toggleFieldVoice(
+          'promptInput',
+          voiceBtn
+        );
+
+      }
+    );
+
+
+    /* =========================
+       Enter Send
+       ========================= */
+
+    promptInput.addEventListener(
+      'keydown',
+      (e) => {
+
+        if (
+          e.key === 'Enter' &&
+          !e.shiftKey
+        ) {
+
+          e.preventDefault();
+
+          sendBtn.click();
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       Init
+       ========================= */
+
+    window.addEventListener(
+      'DOMContentLoaded',
+      () => {
+
+        document.getElementById(
+          'notifyToggle'
+        ).checked =
+          isAppNotifyEnabled;
+
+
+        sidebar.classList.add(
+          'collapsed'
+        );
+
+
+        applyUiLanguage();
+
+
+        renderSidebarHistory();
+
+        renderMemoSavedList();
+
+        createNewChat();
+
+        updateSidebarToggleButton();
+
+        scrollChatToBottom();
+
+        calculatorClear();
+
+      }
+    );
+
+
+    /* =========================
+       Sessions
+       ========================= */
+
+    function getSavedSessions() {
+
+      return JSON.parse(
+        localStorage.getItem(
+          'chat_sessions'
+        ) || '[]'
+      );
+
+    }
+
+
+    function saveSessions(
+      sessions
+    ) {
+
+      localStorage.setItem(
+        'chat_sessions',
+        JSON.stringify(
+          sessions
+        )
+      );
+
+    }
+
+
+    function createNewChat() {
+
+      currentSessionId =
+        Date.now().toString();
+
+
+      const defaultText =
+        getTexts().welcome ||
+        (
+          currentUiLang === 'en'
+            ? 'Hello! Messages will be saved automatically.'
+            : currentUiLang === 'zh'
+              ? '您好！对话将自动保存。'
+              : currentUiLang === 'ko'
+                ? '안녕하세요! 대화는 자동으로 저장됩니다.'
+                : 'こんにちは！質問を入力すると会話が自動保存されます。'
+        );
+
+
+      chatHistory = [
+
+        {
+          role:
+            'ai',
+
+          text:
+            defaultText,
+
+          summary:
+            ''
+        }
+
+      ];
+
+
+      renderChatLogUI();
+
+      renderSidebarHistory();
+
+      scrollChatToBottom();
+
+    }
+
+
+    function autoSaveCurrentSession(
+      sessionIdToSave,
+      historyToSave
+    ) {
+
+      let sessions =
+        getSavedSessions();
+
+
+      let session =
+        sessions.find(
+          s =>
+            s.id ===
+              sessionIdToSave
+        );
+
+
+      const firstUserMsg =
+        historyToSave.find(
+          m =>
+            m.role ===
+            'user'
+        )?.text ||
+        '新しい会話';
+
+
+      const title =
+        firstUserMsg.length > 18
+          ? firstUserMsg.substring(
+              0,
+              18
+            ) + '...'
+          : firstUserMsg;
+
+
+      if (session) {
+
+        session.history =
+          historyToSave;
+
+
+        if (!session.customTitle) {
+
+          session.title =
+            title;
+
+        }
+
+
+        session.date =
+          new Date()
+            .toLocaleString();
+
+      } else {
+
+        sessions.unshift({
+
+          id:
+            sessionIdToSave,
+
+          title:
+            title,
+
+          customTitle:
+            false,
+
+          pinned:
+            false,
+
+          date:
+            new Date()
+              .toLocaleString(),
+
+          history:
+            historyToSave
+
+        });
+
+      }
+
+
+      saveSessions(
+        sessions
+      );
+
+
+      renderSidebarHistory();
+
+    }
+
+
+    function renderSidebarHistory() {
+
+      const container =
+        document.getElementById(
+          'historyList'
+        );
+
+
+      const sessions =
+        getSavedSessions();
+
+
+      container.innerHTML =
+        '';
+
+
+      sessions.sort(
+        (a, b) => {
+
+          const pinA =
+            a.pinned ? 1 : 0;
+
+          const pinB =
+            b.pinned ? 1 : 0;
+
+
+          if (
+            pinA !== pinB
+          ) {
+
+            return pinB - pinA;
+
+          }
+
+
+          return 0;
+
+        }
+      );
+
+
+      sessions.forEach(
+        session => {
+
+          const item =
+            document.createElement(
+              'div'
+            );
+
+
+          item.className =
+            `history-item ${
+              session.id ===
+              currentSessionId
+                ? 'active'
+                : ''
+            } ${
+              session.pinned
+                ? 'pinned'
+                : ''
+            }`;
+
+
+          item.onclick =
+            () =>
+              loadSession(
+                session.id
+              );
+
+
+          const titleSpan =
+            document.createElement(
+              'span'
+            );
+
+
+          titleSpan.className =
+            'history-item-title';
+
+
+          titleSpan.title =
+            session.title;
+
+
+          titleSpan.textContent =
+            session.title;
+
+
+          const actionDiv =
+            document.createElement(
+              'div'
+            );
+
+
+          actionDiv.className =
+            'history-action-btns';
+
+
+          const pinBtn =
+            document.createElement(
+              'button'
+            );
+
+
+          pinBtn.className =
+            `history-btn pin-btn ${
+              session.pinned
+                ? 'active'
+                : ''
+            }`;
+
+
+          pinBtn.title =
+            session.pinned
+              ? 'ピン留めを解除'
+              : 'チャットをピン留め';
+
+
+          pinBtn.textContent =
+            session.pinned
+              ? '📌'
+              : '📍';
+
+
+          pinBtn.onclick =
+            (e) => {
+
+              e.stopPropagation();
+
+              togglePinSession(
+                session.id
+              );
+
+            };
+
+
+          const editBtn =
+            document.createElement(
+              'button'
+            );
+
+
+          editBtn.className =
+            'history-btn';
+
+
+          editBtn.title =
+            '名前を変更';
+
+
+          editBtn.textContent =
+            '✏️';
+
+
+          editBtn.onclick =
+            (e) => {
+
+              e.stopPropagation();
+
+              renameSession(
+                session.id
+              );
+
+            };
+
+
+          const delBtn =
+            document.createElement(
+              'button'
+            );
+
+
+          delBtn.className =
+            'history-btn del-btn';
+
+
+          delBtn.title =
+            getTexts().deleting;
+
+
+          delBtn.textContent =
+            '✕';
+
+
+          delBtn.onclick =
+            (e) => {
+
+              e.stopPropagation();
+
+              deleteSession(
+                session.id
+              );
+
+            };
+
+
+          actionDiv.appendChild(
+            pinBtn
+          );
+
+          actionDiv.appendChild(
+            editBtn
+          );
+
+          actionDiv.appendChild(
+            delBtn
+          );
+
+
+          item.appendChild(
+            titleSpan
+          );
+
+          item.appendChild(
+            actionDiv
+          );
+
+
+          container.appendChild(
+            item
+          );
+
+        }
+      );
+
+    }
+
+
+    function togglePinSession(
+      id
+    ) {
+
+      const sessions =
+        getSavedSessions();
+
+
+      const session =
+        sessions.find(
+          s =>
+            s.id === id
+        );
+
+
+      if (!session)
+        return;
+
+
+      session.pinned =
+        !session.pinned;
+
+
+      saveSessions(
+        sessions
+      );
+
+
+      renderSidebarHistory();
+
+    }
+
+
+    function renameSession(
+      id
+    ) {
+
+      const sessions =
+        getSavedSessions();
+
+
+      const session =
+        sessions.find(
+          s =>
+            s.id === id
+        );
+
+
+      if (!session)
+        return;
+
+
+      const newTitle =
+        prompt(
+          currentUiLang === 'en'
+            ? 'Enter a new chat name:'
+            : currentUiLang === 'zh'
+              ? '请输入新的聊天名称：'
+              : currentUiLang === 'ko'
+                ? '새 채팅 이름을 입력하세요:'
+                : '新しいチャット名を入力してください:',
+          session.title
+        );
+
+
+      if (
+        newTitle !== null &&
+        newTitle.trim() !== ''
+      ) {
+
+        session.title =
+          newTitle.trim();
+
+        session.customTitle =
+          true;
+
+
+        saveSessions(
+          sessions
+        );
+
+
+        renderSidebarHistory();
+
+      }
+
+    }
+
+
+    function loadSession(
+      id
+    ) {
+
+      const sessions =
+        getSavedSessions();
+
+
+      const session =
+        sessions.find(
+          s =>
+            s.id === id
+        );
+
+
+      if (session) {
+
+        currentSessionId =
+          session.id;
+
+
+        chatHistory =
+          session.history;
+
+
+        renderChatLogUI();
+
+
+        renderSidebarHistory();
+
+
+        scrollChatToBottom();
+
+      }
+
+    }
+
+
+    function deleteSession(
+      id
+    ) {
+
+      let sessions =
+        getSavedSessions()
+          .filter(
+            s =>
+              s.id !== id
+          );
+
+
+      saveSessions(
+        sessions
+      );
+
+
+      if (
+        currentSessionId === id
+      ) {
+
+        createNewChat();
+
+      } else {
+
+        renderSidebarHistory();
+
+      }
+
+    }
+
+
+    /* =========================
+       Chat Render
+       ========================= */
+
+    function renderChatLogUI() {
+
+      chatLog.innerHTML =
+        '';
+
+
+      chatHistory.forEach(
+        item => {
+
+          if (
+            item.role ===
+            'user'
+          ) {
+
+            appendUserMsgUI(
+              item.text
+            );
+
+          } else {
+
+            const aiDiv =
+              appendAiMsgUI(
+                ''
+              );
+
+
+            renderAiResponseUI(
+              aiDiv,
+              item.text,
+              item.summary || '',
+              item.isGenerating
+            );
+
+          }
+
+        }
+      );
+
+
+      scrollChatToBottom();
+
+    }
+
+
+    /* =========================
+       Modal
+       ========================= */
+
+    menuBtn.addEventListener(
+      'click',
+      () =>
+        featureModal.classList.add(
+          'show'
+        )
+    );
+
+
+    closeModal.addEventListener(
+      'click',
+      () => {
+
+        stopFieldVoice();
+
+        featureModal.classList.remove(
+          'show'
+        );
+
+      }
+    );
+
+
+    function switchTab(
+      e,
+      tabId
+    ) {
+
+      document
+        .querySelectorAll(
+          '.tab-btn'
+        )
+        .forEach(
+          btn =>
+            btn.classList.remove(
+              'active'
+            )
+        );
+
+
+      document
+        .querySelectorAll(
+          '.tab-content'
+        )
+        .forEach(
+          content =>
+            content.classList.remove(
+              'active'
+            )
+        );
+
+
+      e.currentTarget.classList.add(
+        'active'
+      );
+
+
+      document
+        .getElementById(
+          tabId
+        )
+        .classList.add(
+          'active'
+        );
+
+    }
+
+
+    /* =========================
+       Send
+       ========================= */
+
+    sendBtn.addEventListener(
+      'click',
+      async () => {
+
+        const prompt =
+          promptInput.value.trim();
+
+
+        if (!prompt)
+          return;
+
+
+        if (
+          searchMode.checked
+        ) {
+
+          const searchUrl =
+            `https://www.google.com/search?q=${encodeURIComponent(prompt)}&lr=lang_${currentUiLang}&hl=${currentUiLang}`;
+
+
+          window.open(
+            searchUrl,
+            '_blank'
+          );
+
+
+          promptInput.value =
+            '';
+
+
+          return;
+
+        }
+
+
+        const activeSessionId =
+          currentSessionId;
+
+
+        appendUserMsgUI(
+          prompt
+        );
+
+
+        chatHistory.push({
+
+          role:
+            'user',
+
+          text:
+            prompt
+
+        });
+
+
+        const placeholderMsg = {
+
+          role:
+            'ai',
+
+          text:
+            currentUiLang === 'en'
+              ? 'Waiting in queue...'
+              : currentUiLang === 'zh'
+                ? '等待处理中...'
+                : currentUiLang === 'ko'
+                  ? '대기 중...'
+                  : '順番待ち中...',
+
+          summary:
+            '',
+
+          isGenerating:
+            true
+
+        };
+
+
+        chatHistory.push(
+          placeholderMsg
+        );
+
+
+        autoSaveCurrentSession(
+          activeSessionId,
+          chatHistory
+        );
+
+
+        promptInput.value =
+          '';
+
+
+        renderChatLogUI();
+
+
+        apiQueue.push({
+
+          sessionId:
+            activeSessionId,
+
+          prompt
+
+        });
+
+
+        processQueue();
+
+      }
+    );
+
+
+    /* =========================
+       Queue
+       ========================= */
+
+    async function processQueue() {
+
+      if (
+        isProcessingQueue ||
+        apiQueue.length === 0
+      ) return;
+
+
+      isProcessingQueue =
+        true;
+
+
+      const task =
+        apiQueue.shift();
+
+
+      updateMsgStatus(
+        task.sessionId,
+        currentUiLang === 'en'
+          ? '⏳ Generating answer...'
+          : currentUiLang === 'zh'
+            ? '⏳ 正在生成回答...'
+            : currentUiLang === 'ko'
+              ? '⏳ 답변 생성 중...'
+              : '⏳ 回答を生成中...'
+      );
+
+
+      try {
+
+        await processAiGeneration(
+          task.sessionId,
+          task.prompt
+        );
+
+      } catch (e) {
+
+        console.error(e);
+
+      } finally {
+
+        isProcessingQueue =
+          false;
+
+
+        setTimeout(
+          () => {
+            processQueue();
+          },
+          500
+        );
+
+      }
+
+    }
+
+
+    function updateMsgStatus(
+      sessionId,
+      statusText
+    ) {
+
+      let sessions =
+        getSavedSessions();
+
+
+      let session =
+        sessions.find(
+          s =>
+            s.id ===
+            sessionId
+        );
+
+
+      if (session) {
+
+        let targetMsg =
+          session.history.find(
+            m =>
+              m.isGenerating
+          );
+
+
+        if (targetMsg) {
+
+          targetMsg.text =
+            statusText;
+
+        }
+
+
+        saveSessions(
+          sessions
+        );
+
+      }
+
+
+      if (
+        currentSessionId ===
+        sessionId
+      ) {
+
+        let targetMsg =
+          chatHistory.find(
+            m =>
+              m.isGenerating
+          );
+
+
+        if (targetMsg) {
+
+          targetMsg.text =
+            statusText;
+
+        }
+
+
+        renderChatLogUI();
+
+      }
+
+    }
+
+
+    /* =========================
+       AI Parse
+       ========================= */
+
+    function parseAiResponse(
+      rawText
+    ) {
+
+      const text =
+        String(
+          rawText || ''
+        ).trim();
+
+
+      const summaryMatch =
+        text.match(
+          /【要約】\s*([\s\S]*?)(?=\s*【本文】|$)/
+        );
+
+
+      const bodyMatch =
+        text.match(
+          /【本文】\s*([\s\S]*)$/
+        );
+
+
+      if (
+        summaryMatch &&
+        bodyMatch
+      ) {
+
+        return {
+
+          summary:
+            summaryMatch[1].trim(),
+
+          body:
+            bodyMatch[1].trim()
+
+        };
+
+      }
+
+
+      return {
+
+        summary:
+          '',
+
+        body:
+          text
+
+      };
+
+    }
+
+
+    /* =========================
+       AI Generation
+       ========================= */
+
+    async function processAiGeneration(
+      sessionId,
+      prompt,
+      retryCount = 0
+    ) {
+
+      try {
+
+        const langInstruction =
+          `【重要指示: 必ず「${
+            UI_LANG_NAMES[
+              currentUiLang
+            ] || '日本語'
+          }」で回答してください。】`;
+
+
+        const structureInstruction = `
+
+【回答形式】
+必ず以下の形式で回答してください。
+
+【要約】
+ここには、【本文】で説明する内容全体を2〜4文程度で要約してください。
+質問への別回答ではなく、本文全体の重要ポイントをまとめてください。
+本文の冒頭部分をそのままコピーしないでください。
+
+【本文】
+ここには質問に対する詳しい回答を書いてください。
+必要に応じて、理由・手順・例・注意点なども含めてください。
+
+【重要】
+・「【要約】」「【本文】」の見出しを必ず付ける
+・要約は本文全体を読んだうえでまとめる
+・要約と本文を同じ文章にしない
+`;
+
+
+        const fullPrompt =
+          langInstruction +
+          structureInstruction +
+          '\n\nユーザーの質問:\n' +
+          prompt;
+
+
+        const res =
+          await fetch(
+            '/api/generate',
+            {
+              method:
+                'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  prompt:
+                    fullPrompt
+                })
+            }
+          );
+
+
+        if (
+          res.status === 429
+        ) {
+
+          if (
+            retryCount < 3
+          ) {
+
+            const retryDelaySec =
+              25;
+
+
+            updateMsgStatus(
+              sessionId,
+              `⏳ 制限超過のため待機中... (${retryDelaySec}秒後に自動再試行)`
+            );
+
+
+            await new Promise(
+              resolve =>
+                setTimeout(
+                  resolve,
+                  retryDelaySec *
+                    1000
+                )
+            );
+
+
+            return await processAiGeneration(
+              sessionId,
+              prompt,
+              retryCount + 1
+            );
+
+          }
+
+
+          throw new Error(
+            '利用制限（クォータ）に達しました。しばらく時間をおいて再試行してください。'
+          );
+
+        }
+
+
+        if (!res.ok) {
+
+          const contentType =
+            res.headers.get(
+              'content-type'
+            ) || '';
+
+
+          let errorMsg =
+            '';
+
+
+          if (
+            contentType.includes(
+              'application/json'
+            )
+          ) {
+
+            const errJson =
+              await res.json();
+
+
+            errorMsg =
+              errJson.error?.message ||
+              JSON.stringify(
+                errJson
+              );
+
+          } else {
+
+            errorMsg =
+              await res.text();
+
+          }
+
+
+          throw new Error(
+            `サーバーエラー (${res.status}): ${errorMsg}`
+          );
+
+        }
+
+
+        const data =
+          await res.json();
+
+
+        const text =
+          data.candidates?.[0]
+            ?.content?.parts?.[0]
+            ?.text ||
+          JSON.stringify(
+            data,
+            null,
+            2
+          );
+
+
+        const parsed =
+          parseAiResponse(
+            text
+          );
+
+
+        let sessions =
+          getSavedSessions();
+
+
+        let session =
+          sessions.find(
+            s =>
+              s.id ===
+              sessionId
+          );
+
+
+        if (session) {
+
+          let targetMsg =
+            session.history.find(
+              m =>
+                m.isGenerating
+            );
+
+
+          if (targetMsg) {
+
+            targetMsg.text =
+              parsed.body;
+
+            targetMsg.summary =
+              parsed.summary;
+
+            delete targetMsg.isGenerating;
+
+          }
+
+
+          saveSessions(
+            sessions
+          );
+
+        }
+
+
+        if (
+          currentSessionId ===
+          sessionId
+        ) {
+
+          let targetMsg =
+            chatHistory.find(
+              m =>
+                m.isGenerating
+            );
+
+
+          if (targetMsg) {
+
+            targetMsg.text =
+              parsed.body;
+
+            targetMsg.summary =
+              parsed.summary;
+
+            delete targetMsg.isGenerating;
+
+          }
+
+
+          renderChatLogUI();
+
+        }
+
+
+        sendSystemNotification(
+          currentUiLang === 'en'
+            ? 'AI answer completed'
+            : currentUiLang === 'zh'
+              ? 'AI回答完成'
+              : currentUiLang === 'ko'
+                ? 'AI 답변이 완료되었습니다'
+                : 'AI回答が完了しました',
+
+          parsed.body.substring(
+            0,
+            40
+          ) + '...'
+        );
+
+
+      } catch (err) {
+
+        let sessions =
+          getSavedSessions();
+
+
+        let session =
+          sessions.find(
+            s =>
+              s.id ===
+              sessionId
+          );
+
+
+        if (session) {
+
+          let targetMsg =
+            session.history.find(
+              m =>
+                m.isGenerating
+          );
+
+
+          if (targetMsg) {
+
+            targetMsg.text =
+              'エラーが発生しました: ' +
+              err.message;
+
+
+            delete targetMsg.isGenerating;
+
+          }
+
+
+          saveSessions(
+            sessions
+          );
+
+        }
+
+
+        if (
+          currentSessionId ===
+          sessionId
+        ) {
+
+          renderChatLogUI();
+
+        }
+
+      }
+
+    }
+
+
+    /* =========================
+       User UI
+       ========================= */
+
+    function appendUserMsgUI(
+      text
+    ) {
+
+      const div =
+        document.createElement(
+          'div'
+        );
+
+
+      div.className =
+        'message user-msg';
+
+
+      div.textContent =
+        text;
+
+
+      chatLog.appendChild(
+        div
+      );
+
+
+      chatLog.scrollTop =
+        chatLog.scrollHeight;
+
+    }
+
+
+    function appendAiMsgUI(
+      text
+    ) {
+
+      const div =
+        document.createElement(
+          'div'
+        );
+
+
+      div.className =
+        'message ai-msg';
+
+
+      div.textContent =
+        text;
+
+
+      chatLog.appendChild(
+        div
+      );
+
+
+      chatLog.scrollTop =
+        chatLog.scrollHeight;
+
+
+      return div;
+
+    }
+
+
+    /* =========================
+       AI Response UI
+       ========================= */
+
+    function renderAiResponseUI(
+      container,
+      fullText,
+      summaryText,
+      isGenerating = false
+    ) {
+
+      container.innerHTML =
+        '';
+
+
+      if (isGenerating) {
+
+        container.textContent =
+          fullText ||
+          '⏳ 処理中...';
+
+        return;
+
+      }
+
+
+      const displaySummary =
+        summaryText ||
+        getTexts().noSummary;
+
+
+      const blocksContainer =
+        document.createElement(
+          'div'
+        );
+
+
+      blocksContainer.className =
+        'ai-blocks-container';
+
+
+      const uniqueId =
+        Date.now() +
+        Math.random()
+          .toString(36)
+          .substring(2, 7);
+
+
+      const articleId =
+        `article-${uniqueId}`;
+
+
+      const summaryId =
+        `summary-${uniqueId}`;
+
+
+      /* 本文 */
+
+      const mainBox =
+        document.createElement(
+          'div'
+        );
+
+
+      mainBox.id =
+        articleId;
+
+
+      mainBox.style.cssText =
+        `
+        line-height:1.6;
+        padding:12px;
+        border-radius:10px;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255,255,255,0.025),
+            rgba(0,234,255,0.018)
+          );
+        `;
+
+
+      const mainTopNav =
+        document.createElement(
+          'div'
+        );
+
+
+      mainTopNav.style.cssText =
+        `
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:8px;
+        border-bottom:
+          1px solid rgba(0,234,255,0.10);
+        padding-bottom:6px;
+        flex-wrap:wrap;
+        gap:6px;
+        `;
+
+
+      const mainHeader =
+        document.createElement(
+          'div'
+        );
+
+
+      mainHeader.style.cssText =
+        `
+        font-weight:bold;
+        font-size:0.85rem;
+        color:#76efff;
+        `;
+
+
+      mainHeader.textContent =
+        currentUiLang === 'en'
+          ? '📄 Answer'
+          : currentUiLang === 'zh'
+            ? '📄 正文'
+            : currentUiLang === 'ko'
+              ? '📄 본문'
+              : '📄 本文';
+
+
+      const mainTopBtns =
+        document.createElement(
+          'div'
+        );
+
+
+      mainTopBtns.style.cssText =
+        `
+        display:flex;
+        gap:6px;
+        align-items:center;
+        `;
+
+
+      const btnSpeakMain =
+        document.createElement(
+          'button'
+        );
+
+
+      btnSpeakMain.className =
+        'speech-btn';
+
+
+      btnSpeakMain.textContent =
+        getTexts().transSpeak;
+
+
+      btnSpeakMain.onclick =
+        () =>
+          speakText(
+            fullText,
+            currentUiLang
+          );
+
+
+      const btnStopMain =
+        document.createElement(
+          'button'
+        );
+
+
+      btnStopMain.className =
+        'speech-btn stop-btn';
+
+
+      btnStopMain.textContent =
+        getTexts().transStop;
+
+
+      btnStopMain.onclick =
+        () =>
+          stopSpeech();
+
+
+      const btnGoSummaryTop =
+        document.createElement(
+          'button'
+        );
+
+
+      btnGoSummaryTop.className =
+        'speech-btn';
+
+
+      btnGoSummaryTop.textContent =
+        currentUiLang === 'en'
+          ? '⬇ Summary'
+          : currentUiLang === 'zh'
+            ? '⬇ 摘要'
+            : currentUiLang === 'ko'
+              ? '⬇ 요약'
+              : '⬇ 要約へ移動';
+
+
+      btnGoSummaryTop.onclick =
+        () => {
+
+          document
+            .getElementById(
+              summaryId
+            )
+            ?.scrollIntoView({
+              behavior:
+                'smooth',
+              block:
+                'start'
+            });
+
+        };
+
+
+      mainTopBtns.appendChild(
+        btnSpeakMain
+      );
+
+
+      mainTopBtns.appendChild(
+        btnStopMain
+      );
+
+
+      mainTopBtns.appendChild(
+        btnGoSummaryTop
+      );
+
+
+      mainTopNav.appendChild(
+        mainHeader
+      );
+
+
+      mainTopNav.appendChild(
+        mainTopBtns
+      );
+
+
+      const mainBody =
+        document.createElement(
+          'div'
+        );
+
+
+      mainBody.style.cssText =
+        `
+        white-space:pre-wrap;
+        color:#d9e8fb;
+        margin-bottom:8px;
+        `;
+
+
+      mainBody.textContent =
+        fullText;
+
+
+      mainBox.appendChild(
+        mainTopNav
+      );
+
+
+      mainBox.appendChild(
+        mainBody
+      );
+
+
+      /* 要約 */
+
+      const summaryBox =
+        document.createElement(
+          'div'
+        );
+
+
+      summaryBox.id =
+        summaryId;
+
+
+      summaryBox.style.cssText =
+        `
+        background:
+          linear-gradient(
+            145deg,
+            rgba(155,92,255,0.055),
+            rgba(0,234,255,0.025)
+          );
+
+        border:
+          1px solid rgba(155,92,255,0.20);
+
+        padding:12px;
+
+        border-radius:10px;
+
+        margin-top:12px;
+        `;
+
+
+      const summaryTopNav =
+        document.createElement(
+          'div'
+        );
+
+
+      summaryTopNav.style.cssText =
+        `
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:8px;
+        border-bottom:
+          1px solid rgba(155,92,255,0.10);
+        padding-bottom:6px;
+        flex-wrap:wrap;
+        gap:6px;
+        `;
+
+
+      const summaryHeader =
+        document.createElement(
+          'div'
+        );
+
+
+      summaryHeader.style.cssText =
+        `
+        font-weight:bold;
+        font-size:0.85rem;
+        color:#d0b8ff;
+        `;
+
+
+      summaryHeader.textContent =
+        currentUiLang === 'en'
+          ? '📝 Summary'
+          : currentUiLang === 'zh'
+            ? '📝 摘要'
+            : currentUiLang === 'ko'
+              ? '📝 요약'
+              : '📝 要約';
+
+
+      const summaryTopBtns =
+        document.createElement(
+          'div'
+        );
+
+
+      summaryTopBtns.style.cssText =
+        `
+        display:flex;
+        gap:6px;
+        align-items:center;
+        `;
+
+
+      const btnSpeakSummary =
+        document.createElement(
+          'button'
+        );
+
+
+      btnSpeakSummary.className =
+        'speech-btn';
+
+
+      btnSpeakSummary.textContent =
+        getTexts().transSpeak;
+
+
+      btnSpeakSummary.onclick =
+        () =>
+          speakText(
+            displaySummary,
+            currentUiLang
+          );
+
+
+      const btnStopSummary =
+        document.createElement(
+          'button'
+        );
+
+
+      btnStopSummary.className =
+        'speech-btn stop-btn';
+
+
+      btnStopSummary.textContent =
+        getTexts().transStop;
+
+
+      btnStopSummary.onclick =
+        () =>
+          stopSpeech();
+
+
+      const btnGoArticle =
+        document.createElement(
+          'button'
+        );
+
+
+      btnGoArticle.className =
+        'speech-btn';
+
+
+      btnGoArticle.textContent =
+        currentUiLang === 'en'
+          ? '⬆ Answer'
+          : currentUiLang === 'zh'
+            ? '⬆ 正文'
+            : currentUiLang === 'ko'
+              ? '⬆ 본문'
+              : '⬆ 本文へ移動';
+
+
+      btnGoArticle.onclick =
+        () => {
+
+          document
+            .getElementById(
+              articleId
+            )
+            ?.scrollIntoView({
+              behavior:
+                'smooth',
+              block:
+                'start'
+            });
+
+        };
+
+
+      summaryTopBtns.appendChild(
+        btnSpeakSummary
+      );
+
+      summaryTopBtns.appendChild(
+        btnStopSummary
+      );
+
+      summaryTopBtns.appendChild(
+        btnGoArticle
+      );
+
+
+      summaryTopNav.appendChild(
+        summaryHeader
+      );
+
+      summaryTopNav.appendChild(
+        summaryTopBtns
+      );
+
+
+      const summaryBody =
+        document.createElement(
+          'div'
+        );
+
+
+      summaryBody.style.cssText =
+        `
+        white-space:pre-wrap;
+        color:#d5e4f8;
+        margin-bottom:8px;
+        `;
+
+
+      summaryBody.textContent =
+        displaySummary;
+
+
+      summaryBox.appendChild(
+        summaryTopNav
+      );
+
+      summaryBox.appendChild(
+        summaryBody
+      );
+
+
+      blocksContainer.appendChild(
+        mainBox
+      );
+
+      blocksContainer.appendChild(
+        summaryBox
+      );
+
+
+      container.appendChild(
+        blocksContainer
+      );
+
+    }
+
+
+    /* =========================
+       Speech Synthesis
+       ========================= */
+
+    function speakText(
+      text,
+      langCode = 'ja'
+    ) {
+
+      if (
+        !('speechSynthesis' in window)
+      ) return;
+
+
+      window.speechSynthesis.cancel();
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+
+      const langMap = {
+
+        ja:
+          'ja-JP',
+
+        en:
+          'en-US',
+
+        zh:
+          'zh-CN',
+
+        ko:
+          'ko-KR'
+
+      };
+
+
+      utterance.lang =
+        langMap[langCode] ||
+        langCode ||
+        'ja-JP';
+
+
+      window.speechSynthesis.speak(
+        utterance
+      );
+
+    }
+
+
+    function stopSpeech() {
+
+      if (
+        'speechSynthesis' in window
+      ) {
+
+        window.speechSynthesis.cancel();
+
+      }
+
+    }
+
+
+    /* =========================
+       AI Text
+       ========================= */
+
+    async function fetchAiText(
+      promptText
+    ) {
+
+      try {
+
+        const res =
+          await fetch(
+            '/api/generate',
+            {
+              method:
+                'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  prompt:
+                    promptText
+                })
+            }
+          );
+
+
+        if (!res.ok) {
+
+          return '（要約の生成に失敗しました）';
+
+        }
+
+
+        const data =
+          await res.json();
+
+
+        return (
+          data.candidates?.[0]
+            ?.content?.parts?.[0]
+            ?.text ||
+          '処理に失敗しました。'
+        );
+
+
+      } catch (e) {
+
+        return '（要約の生成中にエラーが発生しました）';
+
+      }
+
+    }
+
+
+    /* =========================
+       Memo
+       ========================= */
+
+    function getMemoList() {
+
+      return JSON.parse(
+        localStorage.getItem(
+          'memo_list'
+        ) || '[]'
+      );
+
+    }
+
+
+    function saveMemoItem() {
+
+      const texts =
+        getTexts();
+
+
+      const title =
+        memoTitleInput.value.trim() ||
+        (
+          currentUiLang === 'en'
+            ? 'Untitled Memo'
+            : currentUiLang === 'zh'
+              ? '未命名备忘录'
+              : currentUiLang === 'ko'
+                ? '제목 없는 메모'
+                : '無題のメモ'
+        );
+
+
+      const body =
+        memoEditor.value;
+
+
+      if (!body) {
+
+        return alert(
+          texts.newMemoRequired
+        );
+
+      }
+
+
+      const list =
+        getMemoList();
+
+
+      if (currentMemoId) {
+
+        const idx =
+          list.findIndex(
+            m =>
+              m.id ===
+              currentMemoId
+          );
+
+
+        if (idx !== -1) {
+
+          list[idx] = {
+
+            id:
+              currentMemoId,
+
+            title,
+            body,
+
+            date:
+              new Date()
+                .toLocaleString()
+
+          };
+
+        }
+
+      } else {
+
+        const newMemo = {
+
+          id:
+            Date.now().toString(),
+
+          title,
+          body,
+
+          date:
+            new Date()
+              .toLocaleString()
+
+        };
+
+
+        list.push(
+          newMemo
+        );
+
+
+        currentMemoId =
+          newMemo.id;
+
+      }
+
+
+      localStorage.setItem(
+        'memo_list',
+        JSON.stringify(list)
+      );
+
+
+      renderMemoSavedList();
+
+
+      alert(
+        texts.memoSaved
+      );
+
+    }
+
+
+    function renderMemoSavedList() {
+
+      const container =
+        document.getElementById(
+          'memoSavedList'
+        );
+
+
+      const list =
+        getMemoList();
+
+
+      container.innerHTML =
+        '';
+
+
+      if (list.length === 0) {
+
+        container.innerHTML =
+          `
+          <div style="
+            color:#8097b3;
+            font-size:0.85rem;
+            text-align:center;
+            padding:20px 0;
+          ">
+            ${sanitizeHTML(
+              getTexts().noSavedMemo
+            )}
+          </div>
+          `;
+
+        return;
+
+      }
+
+
+      list.forEach(
+        memo => {
+
+          const item =
+            document.createElement(
+              'div'
+            );
+
+
+          item.className =
+            'saved-item';
+
+
+          const safeTitle =
+            sanitizeHTML(
+              memo.title
+            );
+
+
+          item.innerHTML = `
+
+            <div
+              class="saved-item-title"
+              onclick="loadMemoItem('${memo.id}')"
+            >
+
+              ${safeTitle}
+
+              <small
+                style="color:#8097b3;"
+              >
+                (${sanitizeHTML(
+                  memo.date
+                )})
+              </small>
+
+            </div>
+
+
+            <button
+              class="btn"
+              style="
+                border-color:rgba(255,80,120,0.35);
+                color:#ff9bb2;
+                padding:2px 8px;
+                font-size:0.8rem;
+              "
+              onclick="deleteMemoItem('${memo.id}')"
+            >
+              ${sanitizeHTML(
+                getTexts().deleting
+              )}
+            </button>
+
+          `;
+
+
+          container.appendChild(
+            item
+          );
+
+        }
+      );
+
+    }
+
+
+    function loadMemoItem(
+      id
+    ) {
+
+      const list =
+        getMemoList();
+
+
+      const memo =
+        list.find(
+          m =>
+            m.id === id
+        );
+
+
+      if (memo) {
+
+        currentMemoId =
+          memo.id;
+
+        memoTitleInput.value =
+          memo.title;
+
+        memoEditor.value =
+          memo.body;
+
+      }
+
+    }
+
+
+    function deleteMemoItem(
+      id
+    ) {
+
+      if (
+        confirm(
+          getTexts().deleteMemo
+        )
+      ) {
+
+        let list =
+          getMemoList()
+            .filter(
+              m =>
+                m.id !== id
+            );
+
+
+        localStorage.setItem(
+          'memo_list',
+          JSON.stringify(list)
+        );
+
+
+        if (
+          currentMemoId === id
+        ) {
+
+          currentMemoId = null;
+
+          memoTitleInput.value =
+            '';
+
+          memoEditor.value =
+            '';
+
+        }
+
+
+        renderMemoSavedList();
+
+      }
+
+    }
+
+
+    function downloadMemoTxt() {
+
+      const title =
+        memoTitleInput.value.trim() ||
+        'memo';
+
+
+      const body =
+        memoEditor.value;
+
+
+      if (!body) {
+
+        return alert(
+          getTexts().memoDownloadEmpty
+        );
+
+      }
+
+
+      const blob =
+        new Blob(
+          [body],
+          {
+            type:
+              'text/plain;charset=utf-8'
+          }
+        );
+
+
+      const a =
+        document.createElement(
+          'a'
+        );
+
+
+      a.href =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      a.download =
+        `${title}.txt`;
+
+
+      a.click();
+
+    }
+
+
+    /* =========================
+       Document
+       ========================= */
+
+    function getDocList() {
+
+      return JSON.parse(
+        localStorage.getItem(
+          'doc_list'
+        ) || '[]'
+      );
+
+    }
+
+
+    function saveCurrentDoc() {
+
+      const title =
+        document.getElementById(
+          'docTitle'
+        ).value.trim() ||
+        getTexts().newDoc;
+
+
+      const body =
+        document.getElementById(
+          'docEditor'
+        ).value;
+
+
+      const list =
+        getDocList();
+
+
+      if (currentDocId) {
+
+        const idx =
+          list.findIndex(
+            d =>
+              d.id ===
+              currentDocId
+          );
+
+
+        if (idx !== -1) {
+
+          list[idx] = {
+
+            id:
+              currentDocId,
+
+            title,
+            body,
+
+            date:
+              new Date()
+                .toLocaleString()
+
+          };
+
+        }
+
+      } else {
+
+        const newDoc = {
+
+          id:
+            Date.now().toString(),
+
+          title,
+          body,
+
+          date:
+            new Date()
+              .toLocaleString()
+
+        };
+
+
+        list.push(
+          newDoc
+        );
+
+
+        currentDocId =
+          newDoc.id;
+
+      }
+
+
+      localStorage.setItem(
+        'doc_list',
+        JSON.stringify(list)
+      );
+
+
+      renderDocList();
+
+
+      alert(
+        getTexts().docSaved
+      );
+
+    }
+
+
+    function renderDocList() {
+
+      const container =
+        document.getElementById(
+          'docListContainer'
+        );
+
+
+      const list =
+        getDocList();
+
+
+      container.innerHTML =
+        '';
+
+
+      if (list.length === 0) {
+
+        container.innerHTML =
+          `
+          <div
+            style="
+              color:#8097b3;
+              font-size:0.85rem;
+            "
+          >
+            ${sanitizeHTML(
+              getTexts().noSavedDoc
+            )}
+          </div>
+          `;
+
+        return;
+
+      }
+
+
+      list.forEach(
+        doc => {
+
+          const item =
+            document.createElement(
+              'div'
+            );
+
+
+          item.className =
+            'saved-item';
+
+
+          const safeTitle =
+            sanitizeHTML(
+              doc.title
+            );
+
+
+          item.innerHTML = `
+
+            <div
+              class="saved-item-title"
+              onclick="loadDoc('${doc.id}')"
+            >
+
+              ${safeTitle}
+
+              <small
+                style="color:#8097b3;"
+              >
+                (${sanitizeHTML(
+                  doc.date
+                )})
+              </small>
+
+            </div>
+
+
+            <button
+              class="btn"
+              style="
+                border-color:rgba(255,80,120,0.35);
+                color:#ff9bb2;
+                padding:2px 8px;
+                font-size:0.8rem;
+              "
+              onclick="deleteDoc('${doc.id}')"
+            >
+              ${sanitizeHTML(
+                getTexts().deleting
+              )}
+            </button>
+
+          `;
+
+
+          container.appendChild(
+            item
+          );
+
+        }
+      );
+
+    }
+
+
+    function loadDoc(
+      id
+    ) {
+
+      const list =
+        getDocList();
+
+
+      const doc =
+        list.find(
+          d =>
+            d.id === id
+        );
+
+
+      if (doc) {
+
+        currentDocId =
+          doc.id;
+
+        document.getElementById(
+          'docTitle'
+        ).value =
+          doc.title;
+
+        document.getElementById(
+          'docEditor'
+        ).value =
+          doc.body;
+
+      }
+
+    }
+
+
+    function deleteDoc(
+      id
+    ) {
+
+      if (
+        confirm(
+          getTexts().deleteDoc
+        )
+      ) {
+
+        let list =
+          getDocList()
+            .filter(
+              d =>
+                d.id !== id
+            );
+
+
+        localStorage.setItem(
+          'doc_list',
+          JSON.stringify(list)
+        );
+
+
+        if (
+          currentDocId === id
+        ) {
+
+          currentDocId = null;
+
+          document.getElementById(
+            'docTitle'
+          ).value =
+            '';
+
+          document.getElementById(
+            'docEditor'
+          ).value =
+            '';
+
+        }
+
+
+        renderDocList();
+
+      }
+
+    }
+
+
+    function downloadTxt() {
+
+      const title =
+        document.getElementById(
+          'docTitle'
+        ).value.trim() ||
+        'document';
+
+
+      const blob =
+        new Blob(
+          [
+            document.getElementById(
+              'docEditor'
+            ).value
+          ],
+          {
+            type:
+              'text/plain;charset=utf-8'
+          }
+        );
+
+
+      const a =
+        document.createElement(
+          'a'
+        );
+
+
+      a.href =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      a.download =
+        `${title}.txt`;
+
+
+      a.click();
+
+    }
+
+
+    /* =========================
+       Translation
+       ========================= */
+
+    function filterLangs() {
+
+      const filter =
+        document.getElementById(
+          'langSearch'
+        ).value.toLowerCase();
+
+
+      const select =
+        document.getElementById(
+          'langSelect'
+        );
+
+
+      Array.from(
+        select.options
+      ).forEach(
+        opt => {
+
+          opt.hidden =
+            !opt.text
+              .toLowerCase()
+              .includes(
+                filter
+              );
+
+        }
+      );
+
+    }
+
+
+    async function runTranslation() {
+
+      const input =
+        document.getElementById(
+          'transInput'
+        ).value.trim();
+
+
+      const targetLang =
+        document.getElementById(
+          'langSelect'
+        ).value;
+
+
+      const resDiv =
+        document.getElementById(
+          'transResult'
+        );
+
+
+      const btn =
+        document.getElementById(
+          'btnTrans'
+        );
+
+
+      const texts =
+        getTexts();
+
+
+      if (!input) {
+
+        return alert(
+          texts.translateRequired
+        );
+
+      }
+
+
+      resDiv.textContent =
+        texts.translating;
+
+
+      btn.disabled =
+        true;
+
+
+      try {
+
+        const prompt =
+          `あなたはプロの翻訳家です。以下のテキストを【${targetLang}】に正確に翻訳してください。解説や挨拶は一切含めず、翻訳結果のテキストのみを出力してください。\n\n${input}`;
+
+
+        const result =
+          await fetchAiText(
+            prompt
+          );
+
+
+        resDiv.textContent =
+          result;
+
+
+      } catch (err) {
+
+        resDiv.textContent =
+          texts.translateError;
+
+      } finally {
+
+        btn.disabled =
+          false;
+
+      }
+
+    }
+
+
+    function copyTrans() {
+
+      const text =
+        document.getElementById(
+          'transResult'
+        ).textContent;
+
+
+      navigator.clipboard.writeText(
+        text
+      );
+
+
+      alert(
+        getTexts().copySuccess
+      );
+
+    }
+
+
+    function speakTranslation() {
+
+      const text =
+        document.getElementById(
+          'transResult'
+        ).textContent;
+
+
+      if (
+        !text ||
+        text ===
+          getTexts().transPlaceholder
+      ) return;
+
+
+      const select =
+        document.getElementById(
+          'langSelect'
+        );
+
+
+      const langCode =
+        select.options[
+          select.selectedIndex
+        ].getAttribute(
+          'data-code'
+        ) ||
+        'ja-JP';
+
+
+      speakText(
+        text,
+        langCode
+      );
+
+    }
+
+
+    /* =========================
+       Calculator
+       ========================= */
+
+    let calculatorState = {
+      expression: [],
+      currentInput: '0',
+      waitingForOperand: false,
+      justCalculated: false
+    };
+
+
+    let fractionInputMode = 0;
+
+    let fractionBuffer = {
+      integer: '',
+      denominator: '',
+      numerator: ''
+    };
+
+
+    function gcdBigInt(
+      a,
+      b
+    ) {
+
+      a =
+        a < 0n
+          ? -a
+          : a;
+
+      b =
+        b < 0n
+          ? -b
+          : b;
+
+
+      while (
+        b !== 0n
+      ) {
+
+        const temp =
+          a % b;
+
+        a = b;
+        b = temp;
+
+      }
+
+
+      return a;
+
+    }
+
+
+    function normalizeFraction(
+      numerator,
+      denominator
+    ) {
+
+      numerator =
+        BigInt(numerator);
+
+      denominator =
+        BigInt(denominator);
+
+
+      if (
+        denominator === 0n
+      ) {
+
+        throw new Error(
+          getTexts().calculatorDivideZero
+        );
+
+      }
+
+
+      if (
+        denominator < 0n
+      ) {
+
+        numerator =
+          -numerator;
+
+        denominator =
+          -denominator;
+
+      }
+
+
+      if (
+        numerator === 0n
+      ) {
+
+        return {
+          n: 0n,
+          d: 1n
+        };
+
+      }
+
+
+      const g =
+        gcdBigInt(
+          numerator,
+          denominator
+        );
+
+
+      return {
+        n:
+          numerator / g,
+
+        d:
+          denominator / g
+      };
+
+    }
+
+
+    function addFractions(
+      a,
+      b
+    ) {
+
+      return normalizeFraction(
+        a.n * b.d +
+          b.n * a.d,
+
+        a.d * b.d
+      );
+
+    }
+
+
+    function subtractFractions(
+      a,
+      b
+    ) {
+
+      return normalizeFraction(
+        a.n * b.d -
+          b.n * a.d,
+
+        a.d * b.d
+      );
+
+    }
+
+
+    function multiplyFractions(
+      a,
+      b
+    ) {
+
+      return normalizeFraction(
+        a.n * b.n,
+        a.d * b.d
+      );
+
+    }
+
+
+    function divideFractions(
+      a,
+      b
+    ) {
+
+      if (
+        b.n === 0n
+      ) {
+
+        throw new Error(
+          getTexts().calculatorDivideZero
+        );
+
+      }
+
+
+      return normalizeFraction(
+        a.n * b.d,
+        a.d * b.n
+      );
+
+    }
+
+
+    function gcdNumber(
+      a,
+      b
+    ) {
+
+      a =
+        Math.abs(a);
+
+      b =
+        Math.abs(b);
+
+
+      while (
+        b > 1e-12
+      ) {
+
+        const temp =
+          a % b;
+
+        a = b;
+        b = temp;
+
+      }
+
+
+      return a;
+
+    }
+
+
+    function parseDecimalToFraction(
+      value
+    ) {
+
+      const text =
+        String(value)
+          .trim();
+
+
+      if (!text)
+        return {
+          n: 0n,
+          d: 1n
+        };
+
+
+      if (
+        text.includes(
+          'e'
+        ) ||
+        text.includes(
+          'E'
+        )
+      ) {
+
+        const num =
+          Number(text);
+
+
+        if (
+          !Number.isFinite(num)
+        ) {
+
+          throw new Error(
+            getTexts().calculatorError
+          );
+
+        }
+
+
+        return parseDecimalToFraction(
+          num.toString()
+        );
+
+      }
+
+
+      if (
+        text.includes('.')
+      ) {
+
+        const sign =
+          text.startsWith('-')
+            ? -1n
+            : 1n;
+
+
+        const clean =
+          text.replace(
+            '-',
+            ''
+          );
+
+
+        const [
+          integerPart,
+          decimalPart
+        ] =
+          clean.split('.');
+
+
+        const digits =
+          decimalPart.length;
+
+
+        const denominator =
+          10n ** BigInt(digits);
+
+
+        const numerator =
+          BigInt(
+            integerPart || '0'
+          ) *
+            denominator +
+          BigInt(
+            decimalPart || '0'
+          );
+
+
+        return normalizeFraction(
+          sign * numerator,
+          denominator
+        );
+
+      }
+
+
+      return normalizeFraction(
+        BigInt(text),
+        1n
+      );
+
+    }
+
+
+    function parseMixedFraction(
+      integerText,
+      numeratorText,
+      denominatorText
+    ) {
+
+      const integerPart =
+        BigInt(
+          integerText || '0'
+        );
+
+      const numerator =
+        BigInt(
+          numeratorText || '0'
+        );
+
+      const denominator =
+        BigInt(
+          denominatorText || '1'
+        );
+
+
+      if (
+        denominator === 0n
+      ) {
+
+        throw new Error(
+          getTexts().calculatorDivideZero
+        );
+
+      }
+
+
+      /*
+       * 入力された分数部分をまず約分。
+       */
+      const reduced =
+        normalizeFraction(
+          numerator,
+          denominator
+        );
+
+
+      /*
+       * 帯分数の整数部分と分数部分を
+       * 符号も含めて正規化。
+       */
+      if (
+        integerPart < 0n
+      ) {
+
+        return normalizeFraction(
+          integerPart *
+              reduced.d -
+            reduced.n,
+          reduced.d
+        );
+
+      }
+
+
+      return normalizeFraction(
+        integerPart *
+            reduced.d +
+          reduced.n,
+        reduced.d
+      );
+
+    }
+
+
+    function formatBigFraction(
+      fraction
+    ) {
+
+      const f =
+        normalizeFraction(
+          fraction.n,
+          fraction.d
+        );
+
+
+      if (
+        f.n === 0n
+      ) {
+
+        return {
+          text: '0',
+          html: '0'
+        };
+
+      }
+
+
+      const negative =
+        f.n < 0n;
+
+
+      const absN =
+        negative
+          ? -f.n
+          : f.n;
+
+
+      const integerPart =
+        absN / f.d;
+
+
+      const remainder =
+        absN % f.d;
+
+
+      const sign =
+        negative
+          ? '-'
+          : '';
+
+
+      if (
+        remainder === 0n
+      ) {
+
+        const text =
+          sign +
+          integerPart.toString();
+
+
+        return {
+          text,
+          html:
+            sanitizeHTML(
+              text
+            )
+        };
+
+      }
+
+
+      const numeratorText =
+        remainder.toString();
+
+      const denominatorText =
+        f.d.toString();
+
+
+      if (
+        integerPart === 0n
+      ) {
+
+        const text =
+          `${sign}${numeratorText}/${denominatorText}`;
+
+
+        const html =
+          `
+          ${sign}
+          <span class="result-fraction-stack">
+            <span class="result-fraction-numerator">
+              ${sanitizeHTML(numeratorText)}
+            </span>
+            <span class="result-fraction-denominator">
+              ${sanitizeHTML(denominatorText)}
+            </span>
+          </span>
+          `;
+
+
+        return {
+          text,
+          html
+        };
+
+      }
+
+
+      const text =
+        `${sign}${integerPart.toString()} ${numeratorText}/${denominatorText}`;
+
+
+      const html =
+        `
+        <span class="calculator-result-fraction">
+          <span class="result-mixed-integer">
+            ${sign}${sanitizeHTML(
+              integerPart.toString()
+            )}
+          </span>
+
+          <span class="result-fraction-stack">
+            <span class="result-fraction-numerator">
+              ${sanitizeHTML(numeratorText)}
+            </span>
+            <span class="result-fraction-denominator">
+              ${sanitizeHTML(denominatorText)}
+            </span>
+          </span>
+        </span>
+        `;
+
+
+      return {
+        text,
+        html
+      };
+
+    }
+
+
+    function fractionInputToFraction() {
+
+      const integer =
+        fractionBuffer.integer ||
+        '0';
+
+      const denominator =
+        fractionBuffer.denominator ||
+        '1';
+
+      const numerator =
+        fractionBuffer.numerator ||
+        '0';
+
+
+      return parseMixedFraction(
+        integer,
+        numerator,
+        denominator
+      );
+
+    }
+
+
+    function getCurrentCalculatorValue() {
+
+      if (
+        fractionInputMode !== 0
+      ) {
+
+        return fractionInputToFraction();
+
+      }
+
+
+      return parseDecimalToFraction(
+        calculatorState.currentInput
+      );
+
+    }
+
+
+    function makeCalculatorTokenFromCurrent() {
+
+      const value =
+        getCurrentCalculatorValue();
+
+
+      return {
+        type:
+          'value',
+
+        value,
+
+        display:
+          formatBigFraction(
+            value
+          )
+      };
+
+    }
+
+
+    function calculatorResetExpression() {
+
+      calculatorState = {
+        expression: [],
+        currentInput: '0',
+        waitingForOperand: false,
+        justCalculated: false
+      };
+
+    }
+
+
+    function calculatorClear() {
+
+      calculatorResetExpression();
+
+      fractionInputMode = 0;
+
+      fractionBuffer = {
+        integer: '',
+        denominator: '',
+        numerator: ''
+      };
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function calculatorNumber(
+      digit
+    ) {
+
+      if (
+        fractionInputMode !== 0
+      ) {
+
+        calculatorFractionNumber(
+          digit
+        );
+
+        return;
+
+      }
+
+
+      if (
+        calculatorState.justCalculated
+      ) {
+
+        calculatorResetExpression();
+
+      }
+
+
+      if (
+        calculatorState.waitingForOperand
+      ) {
+
+        calculatorState.currentInput =
+          digit;
+
+        calculatorState.waitingForOperand =
+          false;
+
+      } else {
+
+        if (
+          calculatorState.currentInput ===
+          '0'
+        ) {
+
+          calculatorState.currentInput =
+            digit;
+
+        } else {
+
+          calculatorState.currentInput +=
+            digit;
+
+        }
+
+      }
+
+
+      updateCalculatorDisplay();
+
+    }
+
+
+    function calculatorDecimal() {
+
+      if (
+        fractionInputMode !== 0
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        calculatorState.justCalculated
+      ) {
+
+        calculatorResetExpression();
+
+      }
+
+
+      if (
+        calculatorState.waitingForOperand
+      ) {
+
+        calculatorState.currentInput =
+          '0.';
+
+        calculatorState.waitingForOperand =
+          false;
+
+      } else if (
+        !calculatorState.currentInput
+          .includes('.')
+      ) {
+
+        calculatorState.currentInput +=
+          '.';
+
+      }
+
+
+      updateCalculatorDisplay();
+
+    }
+
+
+    function calculatorFractionStep() {
+
+      /*
+       * 0 → 1
+       * 1 → 2
+       * 2 → 3
+       * 3 → 0
+       */
+      if (
+        fractionInputMode === 0
+      ) {
+
+        if (
+          calculatorState.justCalculated
+        ) {
+
+          calculatorResetExpression();
+
+        }
+
+
+        /*
+         * 現在の通常入力を
+         * 新しい帯分数の整数部分にする。
+         */
+        fractionBuffer.integer =
+          calculatorState.currentInput ===
+            '0'
+              ? ''
+              : calculatorState.currentInput;
+
+        fractionBuffer.denominator =
+          '';
+
+        fractionBuffer.numerator =
+          '';
+
+        fractionInputMode =
+          1;
+
+
+        calculatorState.currentInput =
+          '0';
+
+      } else if (
+        fractionInputMode === 1
+      ) {
+
+        fractionInputMode =
+          2;
+
+      } else if (
+        fractionInputMode === 2
+      ) {
+
+        fractionInputMode =
+          3;
+
+      } else {
+
+        finishFractionInput();
+
+      }
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function calculatorFractionNumber(
+      digit
+    ) {
+
+      if (
+        fractionInputMode === 1
+      ) {
+
+        fractionBuffer.integer +=
+          digit;
+
+      } else if (
+        fractionInputMode === 2
+      ) {
+
+        fractionBuffer.denominator +=
+          digit;
+
+      } else if (
+        fractionInputMode === 3
+      ) {
+
+        fractionBuffer.numerator +=
+          digit;
+
+      }
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function finishFractionInput() {
+
+      try {
+
+        const fraction =
+          fractionInputToFraction();
+
+
+        /*
+         * 帯分数を仮分数として
+         * 正規化済み状態にする。
+         * これにより分数部分の
+         * 約分・仮分数化を自動処理。
+         */
+
+        calculatorState.currentInput =
+          formatBigFraction(
+            fraction
+          ).text;
+
+
+        fractionInputMode =
+          0;
+
+
+        fractionBuffer = {
+          integer: '',
+          denominator: '',
+          numerator: ''
+        };
+
+
+        calculatorState.waitingForOperand =
+          false;
+
+      } catch (error) {
+
+        calculatorState.currentInput =
+          'Error';
+
+        fractionInputMode =
+          0;
+
+        fractionBuffer = {
+          integer: '',
+          denominator: '',
+          numerator: ''
+        };
+
+      }
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function calculatorOperator(
+      operator
+    ) {
+
+      try {
+
+        if (
+          calculatorState.currentInput ===
+          'Error'
+        ) {
+
+          calculatorClear();
+
+        }
+
+
+        /*
+         * 分数入力中なら終了。
+         */
+        if (
+          fractionInputMode !== 0
+        ) {
+
+          finishFractionInput();
+
+        }
+
+
+        const current =
+          getCurrentCalculatorValue();
+
+
+        if (
+          calculatorState.expression.length ===
+          0
+        ) {
+
+          calculatorState.expression.push(
+            {
+              type: 'value',
+              value: current
+            }
+          );
+
+        } else if (
+          calculatorState.expression[
+            calculatorState.expression.length - 1
+          ].type === 'operator'
+        ) {
+
+          calculatorState.expression[
+            calculatorState.expression.length - 1
+          ].value =
+            operator;
+
+        } else {
+
+          calculatorState.expression.push(
+            {
+              type:
+                'value',
+
+              value:
+                current
+            }
+          );
+
+        }
+
+
+        calculatorState.expression.push(
+          {
+            type:
+              'operator',
+
+            value:
+              operator
+          }
+        );
+
+
+        calculatorState.currentInput =
+          '0';
+
+        calculatorState.waitingForOperand =
+          true;
+
+        calculatorState.justCalculated =
+          false;
+
+
+        updateCalculatorDisplay();
+
+      } catch (error) {
+
+        calculatorShowError(
+          error.message
+        );
+
+      }
+
+    }
+
+
+    function calculatorEquals() {
+
+      try {
+
+        if (
+          fractionInputMode !== 0
+        ) {
+
+          finishFractionInput();
+
+        }
+
+
+        const current =
+          getCurrentCalculatorValue();
+
+
+        if (
+          calculatorState.expression.length ===
+          0
+        ) {
+
+          const result =
+            formatBigFraction(
+              current
+            );
+
+
+          calculatorState.currentInput =
+            result.text;
+
+          calculatorState.justCalculated =
+            true;
+
+          updateCalculatorDisplay();
+
+          return;
+
+        }
+
+
+        let expression =
+          [
+            ...calculatorState.expression
+          ];
+
+
+        if (
+          expression.length === 0 ||
+          expression[
+            expression.length - 1
+          ].type ===
+            'operator'
+        ) {
+
+          expression.push({
+            type:
+              'value',
+
+            value:
+              current
+          });
+
+        } else {
+
+          expression.push({
+            type:
+              'value',
+
+            value:
+              current
+          });
+
+        }
+
+
+        const result =
+          evaluateCalculatorExpression(
+            expression
+          );
+
+
+        calculatorState.expression =
+          [];
+
+
+        calculatorState.currentInput =
+          formatBigFraction(
+            result
+          ).text;
+
+
+        calculatorState.justCalculated =
+          true;
+
+        calculatorState.waitingForOperand =
+          false;
+
+
+        updateCalculatorDisplay();
+
+        updateFractionStatus();
+
+      } catch (error) {
+
+        calculatorShowError(
+          error.message
+        );
+
+      }
+
+    }
+
+
+    function evaluateCalculatorExpression(
+      expression
+    ) {
+
+      /*
+       * 先に × と ÷ を計算。
+       */
+      const values = [];
+      const operators = [];
+
+
+      let current =
+        expression[0].value;
+
+
+      for (
+        let i = 1;
+        i <
+          expression.length;
+        i += 2
+      ) {
+
+        const operator =
+          expression[i].value;
+
+        const next =
+          expression[i + 1]
+            .value;
+
+
+        if (
+          operator === '×'
+        ) {
+
+          current =
+            multiplyFractions(
+              current,
+              next
+            );
+
+        } else if (
+          operator === '÷'
+        ) {
+
+          current =
+            divideFractions(
+              current,
+              next
+            );
+
+        } else {
+
+          values.push(
+            current
+          );
+
+          operators.push(
+            operator
+          );
+
+          current =
+            next;
+
+        }
+
+      }
+
+
+      values.push(
+        current
+      );
+
+
+      let result =
+        values[0];
+
+
+      for (
+        let i = 0;
+        i <
+          operators.length;
+        i++
+      ) {
+
+        if (
+          operators[i] === '+'
+        ) {
+
+          result =
+            addFractions(
+              result,
+              values[i + 1]
+            );
+
+        } else if (
+          operators[i] === '−'
+        ) {
+
+          result =
+            subtractFractions(
+              result,
+              values[i + 1]
+            );
+
+        }
+
+      }
+
+
+      return normalizeFraction(
+        result.n,
+        result.d
+      );
+
+    }
+
+
+    function calculatorShowError(
+      message
+    ) {
+
+      document.getElementById(
+        'calculatorMainDisplay'
+      ).innerHTML =
+        `
+        <span class="calculator-error">
+          ${sanitizeHTML(
+            message ||
+            getTexts().calculatorError
+          )}
+        </span>
+        `;
+
+
+      calculatorState.expression =
+        [];
+
+      calculatorState.currentInput =
+        '0';
+
+      calculatorState.waitingForOperand =
+        false;
+
+      calculatorState.justCalculated =
+        true;
+
+      fractionInputMode =
+        0;
+
+      fractionBuffer = {
+        integer: '',
+        denominator: '',
+        numerator: ''
+      };
+
+
+      updateFractionStatus();
+
+    }
+
+
+    function calculatorBackspace() {
+
+      if (
+        fractionInputMode === 1
+      ) {
+
+        fractionBuffer.integer =
+          fractionBuffer.integer.slice(
+            0,
+            -1
+          );
+
+      } else if (
+        fractionInputMode === 2
+      ) {
+
+        fractionBuffer.denominator =
+          fractionBuffer.denominator.slice(
+            0,
+            -1
+          );
+
+      } else if (
+        fractionInputMode === 3
+      ) {
+
+        fractionBuffer.numerator =
+          fractionBuffer.numerator.slice(
+            0,
+            -1
+          );
+
+      } else {
+
+        if (
+          calculatorState.currentInput.length >
+          1
+        ) {
+
+          calculatorState.currentInput =
+            calculatorState.currentInput.slice(
+              0,
+              -1
+            );
+
+        } else {
+
+          calculatorState.currentInput =
+            '0';
+
+        }
+
+      }
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function updateCalculatorDisplay() {
+
+      const expressionDiv =
+        document.getElementById(
+          'calculatorExpression'
+        );
+
+
+      const displayDiv =
+        document.getElementById(
+          'calculatorMainDisplay'
+        );
+
+
+      if (
+        fractionInputMode !== 0
+      ) {
+
+        expressionDiv.textContent =
+          getFractionModeLabel();
+
+
+        const preview =
+          buildFractionPreviewHTML();
+
+
+        displayDiv.innerHTML =
+          preview;
+
+        return;
+
+      }
+
+
+      let expressionText =
+        '';
+
+
+      calculatorState.expression.forEach(
+        token => {
+
+          if (
+            token.type ===
+            'operator'
+          ) {
+
+            expressionText +=
+              ` ${token.value} `;
+
+          } else {
+
+            expressionText +=
+              formatBigFraction(
+                token.value
+              ).text;
+
+          }
+
+        }
+      );
+
+
+      expressionDiv.textContent =
+        expressionText ||
+        '0';
+
+
+      if (
+        calculatorState.currentInput ===
+        'Error'
+      ) {
+
+        displayDiv.innerHTML =
+          `
+          <span class="calculator-error">
+            ${sanitizeHTML(
+              getTexts().calculatorError
+            )}
+          </span>
+          `;
+
+        return;
+
+      }
+
+
+      /*
+       * currentInput が通常の帯分数表示の場合は
+       * 内部値へ戻してからHTML表示する。
+       */
+      try {
+
+        const fraction =
+          parseDisplayTextToFraction(
+            calculatorState.currentInput
+          );
+
+
+        displayDiv.innerHTML =
+          formatBigFraction(
+            fraction
+          ).html;
+
+      } catch (e) {
+
+        displayDiv.textContent =
+          calculatorState.currentInput;
+
+      }
+
+    }
+
+
+    function parseDisplayTextToFraction(
+      text
+    ) {
+
+      const clean =
+        String(text)
+          .trim();
+
+
+      if (
+        clean.includes(' ')
+      ) {
+
+        const parts =
+          clean.split(
+            /\s+/
+          );
+
+
+        if (
+          parts.length === 2 &&
+          parts[1].includes('/')
+        ) {
+
+          const integer =
+            BigInt(parts[0]);
+
+          const frac =
+            parts[1].split('/');
+
+          const n =
+            BigInt(frac[0]);
+
+          const d =
+            BigInt(frac[1]);
+
+
+          return parseMixedFraction(
+            integer.toString(),
+            n.toString(),
+            d.toString()
+          );
+
+        }
+
+      }
+
+
+      if (
+        clean.includes('/')
+      ) {
+
+        const parts =
+          clean.split('/');
+
+
+        if (
+          parts.length === 2
+        ) {
+
+          return normalizeFraction(
+            BigInt(parts[0]),
+            BigInt(parts[1])
+          );
+
+        }
+
+      }
+
+
+      return parseDecimalToFraction(
+        clean
+      );
+
+    }
+
+
+    function getFractionModeLabel() {
+
+      const texts =
+        getTexts();
+
+
+      if (
+        fractionInputMode === 1
+      ) {
+
+        return texts.fractionInteger;
+
+      }
+
+
+      if (
+        fractionInputMode === 2
+      ) {
+
+        return texts.fractionDenominator;
+
+      }
+
+
+      if (
+        fractionInputMode === 3
+      ) {
+
+        return texts.fractionNumerator;
+
+      }
+
+
+      return texts.fractionFinished;
+
+    }
+
+
+    function buildFractionPreviewHTML() {
+
+      let integer =
+        fractionBuffer.integer;
+
+
+      let denominator =
+        fractionBuffer.denominator;
+
+
+      let numerator =
+        fractionBuffer.numerator;
+
+
+      if (
+        !integer
+      ) {
+
+        integer =
+          '0';
+
+      }
+
+
+      if (
+        !denominator
+      ) {
+
+        denominator =
+          '?';
+
+      }
+
+
+      if (
+        !numerator
+      ) {
+
+        numerator =
+          '?';
+
+      }
+
+
+      let integerHtml =
+        '';
+
+
+      if (
+        integer !== '0' ||
+        fractionInputMode === 1
+      ) {
+
+        integerHtml =
+          `
+          <span class="mixed-number-integer">
+            ${sanitizeHTML(integer)}
+          </span>
+          `;
+
+      }
+
+
+      return `
+        <span class="mixed-number-preview">
+          ${integerHtml}
+
+          <span class="fraction-preview-stack">
+
+            <span class="fraction-preview-numerator">
+              ${sanitizeHTML(numerator)}
+            </span>
+
+            <span class="fraction-preview-denominator">
+              ${sanitizeHTML(denominator)}
+            </span>
+
+          </span>
+        </span>
+        `;
+
+    }
+
+
+    function updateFractionStatus() {
+
+      const status =
+        document.getElementById(
+          'fractionStatusText'
+        );
+
+
+      const preview =
+        document.getElementById(
+          'fractionPreview'
+        );
+
+
+      status.textContent =
+        fractionInputMode === 0
+          ? getTexts().calculatorNormal
+          : getFractionModeLabel();
+
+
+      if (
+        fractionInputMode === 0
+      ) {
+
+        preview.innerHTML =
+          '';
+
+        return;
+
+      }
+
+
+      preview.innerHTML =
+        buildFractionPreviewHTML();
+
+    }
+
+
+    function updateCalculatorLanguage() {
+
+      const help =
+        document.getElementById(
+          'calculatorHelp'
+        );
+
+
+      help.innerHTML =
+        `
+        <strong>
+          ${sanitizeHTML(
+            getTexts().calculatorHelpTitle
+          )}
+        </strong>
+
+        <br><br>
+
+        ${getTexts().calculatorHelpText}
+        `;
+
+
+      updateCalculatorDisplay();
+
+      updateFractionStatus();
+
+    }
+
+
+    function toggleCalculatorHelp() {
+
+      const help =
+        document.getElementById(
+          'calculatorHelp'
+        );
+
+
+      help.classList.toggle(
+        'show'
+      );
+
+    }
+
+
+    /* =========================
+       Language Panel Outside Click
+       ========================= */
+
+    document.addEventListener(
+      'click',
+      (event) => {
+
+        const wrap =
+          document.querySelector(
+            '.language-menu-wrap'
+          );
+
+
+        const panel =
+          document.getElementById(
+            'languagePanel'
+          );
+
+
+        if (
+          wrap &&
+          panel &&
+          !wrap.contains(event.target)
+        ) {
+
+          panel.classList.remove(
+            'show'
+          );
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
